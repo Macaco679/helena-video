@@ -18,6 +18,8 @@ npm run dev
 
 Copy `.env.example` to `.env.local` and fill only project-safe values. Provider secrets must live in a backend proxy, Supabase Edge Function, or VPS environment.
 
+Canonical GitHub repository: `https://github.com/Macaco679/helena-video`.
+
 ## Product modules
 
 - Studio: prompt, upload, model, quality, camera, motion, duration, shots, audio mode, and export controls.
