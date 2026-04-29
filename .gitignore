@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.log
+helena-video-*.png
+helena-video-dev*.log
+supabase/.temp
+
+.vercel
