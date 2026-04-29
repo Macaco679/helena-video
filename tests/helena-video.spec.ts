@@ -1,17 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+async function gotoStudio(page: Page) {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
+}
 
 test("loads the Helena Video studio shell", async ({ page }) => {
-  await page.goto("/");
+  await gotoStudio(page);
 
   await expect(page).toHaveTitle(/Helena Video/);
-  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Gerar/ })).toBeVisible();
   await expect(page.getByText("Helena IA")).toBeVisible();
   await expect(page.getByText("Corte IA cinemático")).toBeVisible();
 });
 
 test("core controls update visible state", async ({ page }) => {
-  await page.goto("/");
+  await gotoStudio(page);
 
   await page.getByRole("button", { name: /AutoCut/ }).click();
   await expect(page.getByText("Cria cortes sociais, highlights e variacoes curtas.")).toBeVisible();
@@ -28,7 +32,7 @@ test("core controls update visible state", async ({ page }) => {
 });
 
 test("export action downloads project json", async ({ page }) => {
-  await page.goto("/");
+  await gotoStudio(page);
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: /Exportar/ }).click();
   const download = await downloadPromise;
