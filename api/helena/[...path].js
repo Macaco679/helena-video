@@ -27,7 +27,8 @@ export default async function handler(request, response) {
     return;
   }
 
-  const route = normalizeRoute(request.query.path);
+  const incomingUrl = new URL(request.url, "https://helena-video.local");
+  const route = normalizeRoute(request.query?.path, incomingUrl.pathname);
   const targetPath = routeMap[route];
 
   if (!targetPath) {
@@ -50,7 +51,6 @@ export default async function handler(request, response) {
   if (apiKey) headers.set("X-API-Key", apiKey);
 
   const url = new URL(targetPath, apiBase);
-  const incomingUrl = new URL(request.url, "https://helena-video.local");
   url.search = incomingUrl.search;
 
   const upstream = await fetch(url, {
@@ -74,9 +74,11 @@ export const config = {
   }
 };
 
-function normalizeRoute(path) {
+function normalizeRoute(path, pathname) {
   const parts = Array.isArray(path) ? path : path ? [path] : [];
-  return `/${parts.join("/")}`.replace(/\/+/g, "/");
+  const queryRoute = `/${parts.join("/")}`.replace(/\/+/g, "/");
+  if (queryRoute !== "/") return queryRoute;
+  return pathname.replace(/^\/api\/helena/, "") || "/";
 }
 
 function readBody(request) {
