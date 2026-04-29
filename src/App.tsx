@@ -22,9 +22,9 @@ import {
   Upload,
   Wand2
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { appConfig, hasSupabaseConfig } from "./lib/config";
-import { createHelenaJob } from "./lib/helenaApi";
+import { createHelenaJob, fetchHealth } from "./lib/helenaApi";
 import { providerMatrix } from "./lib/providers";
 import type { ChatMessage, GenerationForm, HelenaModule } from "./lib/types";
 
@@ -103,10 +103,13 @@ const providerStateLabels = {
 
 function App() {
   const [form, setForm] = useState(initialForm);
+  const [activeTool, setActiveTool] = useState("Studio");
   const [messages, setMessages] = useState<ChatMessage[]>(assistantSeed);
   const [chatInput, setChatInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [statusLine, setStatusLine] = useState("Workspace local pronto");
+  const [apiStatus, setApiStatus] = useState<"checking" | "online" | "blocked">("checking");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
@@ -115,6 +118,20 @@ function App() {
     () => modules.find((module) => module.id === form.module)!,
     [form.module]
   );
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchHealth()
+      .then(() => {
+        if (isMounted) setApiStatus("online");
+      })
+      .catch(() => {
+        if (isMounted) setApiStatus("blocked");
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const updateForm = <K extends keyof GenerationForm>(
     key: K,
@@ -135,6 +152,38 @@ function App() {
       }
     ]);
     setChatInput("");
+  };
+
+  const exportProject = () => {
+    const payload = {
+      product: "Helena Video",
+      activeTool,
+      form,
+      files: {
+        video: videoFile?.name ?? null,
+        audio: audioFile?.name ?? null,
+        references: referenceFiles.map((file) => file.name)
+      },
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "helena-video-project.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    setStatusLine("Projeto exportado em JSON");
+  };
+
+  const togglePreview = () => {
+    setIsPreviewPlaying((current) => {
+      const next = !current;
+      setStatusLine(next ? "Preview em reprodução" : "Preview pausado");
+      return next;
+    });
   };
 
   const submitJob = async () => {
@@ -172,7 +221,14 @@ function App() {
           {navItems.map((item, index) => {
             const Icon = item.icon;
             return (
-              <button className={index === 0 ? "nav-button active" : "nav-button"} key={item.label}>
+              <button
+                className={activeTool === item.label ? "nav-button active" : "nav-button"}
+                key={item.label}
+                onClick={() => {
+                  setActiveTool(item.label);
+                  setStatusLine(`Ferramenta ativa: ${item.label}`);
+                }}
+              >
                 <Icon size={19} />
                 <span>{item.label}</span>
               </button>
@@ -192,11 +248,11 @@ function App() {
               <Cloud size={15} />
               Supabase {hasSupabaseConfig ? "configurado" : "pendente"}
             </span>
-            <span className="status">
+            <span className={apiStatus === "online" ? "status good" : apiStatus === "blocked" ? "status warn" : "status"}>
               <Gauge size={15} />
-              API {appConfig.helenaApiUrl ? "definida" : "pendente"}
+              API {apiStatus === "online" ? "online" : apiStatus === "blocked" ? "bloqueada" : appConfig.helenaProxyUrl ? "proxy" : "checando"}
             </span>
-            <button className="ghost-button">
+            <button className="ghost-button" onClick={exportProject}>
               <Download size={16} />
               Exportar
             </button>
@@ -306,11 +362,21 @@ function App() {
               <div>
                 <span className="meta-label">Projeto</span>
                 <strong>Campanha Helena Launch</strong>
+                <span className="format-label">Formato {form.aspectRatio}</span>
               </div>
               <div className="segmented-control">
-                <button className="active">9:16</button>
-                <button>16:9</button>
-                <button>1:1</button>
+                {(["9:16", "16:9", "1:1"] as const).map((ratio) => (
+                  <button
+                    className={form.aspectRatio === ratio ? "active" : ""}
+                    key={ratio}
+                    onClick={() => {
+                      updateForm("aspectRatio", ratio);
+                      setStatusLine(`Formato ${ratio} selecionado`);
+                    }}
+                  >
+                    {ratio}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -324,7 +390,11 @@ function App() {
                   <span>{selectedModule.label}</span>
                   <strong>Corte IA cinemático</strong>
                 </div>
-                <button className="play-button" aria-label="Reproduzir preview">
+                <button
+                  className={isPreviewPlaying ? "play-button playing" : "play-button"}
+                  aria-label={isPreviewPlaying ? "Pausar preview" : "Reproduzir preview"}
+                  onClick={togglePreview}
+                >
                   <Play size={22} fill="currentColor" />
                 </button>
               </div>
@@ -369,7 +439,7 @@ function App() {
                 }}
                 placeholder="Pedir roteiro, legenda, corte..."
               />
-              <button onClick={submitChat}>
+              <button onClick={submitChat} aria-label="Enviar mensagem">
                 <MessageSquareText size={17} />
               </button>
             </div>

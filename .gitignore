@@ -10,3 +10,5 @@ helena-video-dev*.log
 supabase/.temp
 
 .vercel
+test-results
+playwright-report

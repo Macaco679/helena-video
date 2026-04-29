@@ -17,6 +17,18 @@ const requestUrl = (path: string) =>
     ? `${appConfig.helenaProxyUrl}${proxyPath(path)}`
     : `${appConfig.helenaApiUrl}${path}`;
 
+export async function fetchHealth() {
+  const response = await fetch(requestUrl("/health"), {
+    headers: authHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error(`Health failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
 export async function fetchCapabilities() {
   const response = await fetch(requestUrl("/api/v1/capabilities"), {
     headers: authHeaders()
@@ -79,7 +91,8 @@ function authHeaders() {
 }
 
 function proxyPath(path: string) {
+  if (path === "/health") return "/health";
   if (path === "/api/v1/capabilities") return "/capabilities";
   const jobMatch = path.match(/^\/api\/v1\/jobs\/([^/]+)$/);
-  return jobMatch ? `/job/${jobMatch[1]}` : path;
+  return jobMatch ? `/jobs/${jobMatch[1]}` : path;
 }
