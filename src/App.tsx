@@ -26,6 +26,7 @@ import { useEffect, useMemo, useState } from "react";
 import { appConfig, hasSupabaseConfig } from "./lib/config";
 import { createHelenaJob, fetchHealth } from "./lib/helenaApi";
 import { providerMatrix } from "./lib/providers";
+import { checkSupabaseConnection } from "./lib/supabase";
 import type { ChatMessage, GenerationForm, HelenaModule } from "./lib/types";
 
 const initialForm: GenerationForm = {
@@ -110,6 +111,9 @@ function App() {
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [statusLine, setStatusLine] = useState("Workspace local pronto");
   const [apiStatus, setApiStatus] = useState<"checking" | "online" | "blocked">("checking");
+  const [supabaseStatus, setSupabaseStatus] = useState<
+    "checking" | "online" | "invalid" | "missing"
+  >(hasSupabaseConfig ? "checking" : "missing");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
@@ -121,6 +125,14 @@ function App() {
 
   useEffect(() => {
     let isMounted = true;
+    checkSupabaseConnection()
+      .then((status) => {
+        if (isMounted) setSupabaseStatus(status);
+      })
+      .catch(() => {
+        if (isMounted) setSupabaseStatus("invalid");
+      });
+
     fetchHealth()
       .then(() => {
         if (isMounted) setApiStatus("online");
@@ -244,9 +256,9 @@ function App() {
             <h1>Editor IA independente</h1>
           </div>
           <div className="topbar-actions">
-            <span className={hasSupabaseConfig ? "status good" : "status warn"}>
+            <span className={supabaseStatus === "online" ? "status good" : "status warn"}>
               <Cloud size={15} />
-              Supabase {hasSupabaseConfig ? "configurado" : "pendente"}
+              Supabase {supabaseLabel(supabaseStatus)}
             </span>
             <span className={apiStatus === "online" ? "status good" : apiStatus === "blocked" ? "status warn" : "status"}>
               <Gauge size={15} />
@@ -507,3 +519,10 @@ function App() {
 }
 
 export default App;
+
+function supabaseLabel(status: "checking" | "online" | "invalid" | "missing") {
+  if (status === "online") return "online";
+  if (status === "invalid") return "chave inválida";
+  if (status === "missing") return "pendente";
+  return "checando";
+}
