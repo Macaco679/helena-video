@@ -1,5 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 :root {
   color-scheme: dark;
+  --hv-purple: #a73cb0;
+  --hv-orange: #f08a36;
+  --hv-pink: #e54d86;
+  --hv-bg-dark: #0f0c1a;
+  --hv-bg-light: #1a1234;
+  --hv-cyan: #38c8b8;
+  --hv-surface: rgba(26, 18, 52, 0.58);
+  --hv-surface-strong: rgba(18, 15, 34, 0.86);
+  --hv-border: rgba(167, 60, 176, 0.22);
+  --hv-border-soft: rgba(255, 255, 255, 0.08);
+  --hv-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -19,9 +32,10 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    linear-gradient(120deg, rgba(251, 177, 39, 0.12), transparent 24%),
-    linear-gradient(140deg, rgba(236, 34, 160, 0.18), transparent 38%),
-    #030608;
+    radial-gradient(circle at 8% 12%, rgba(240, 138, 54, 0.2), transparent 28%),
+    radial-gradient(circle at 92% 8%, rgba(167, 60, 176, 0.22), transparent 30%),
+    radial-gradient(circle at 72% 86%, rgba(56, 200, 184, 0.14), transparent 30%),
+    linear-gradient(135deg, var(--hv-bg-dark), var(--hv-bg-light) 48%, var(--hv-bg-dark));
 }
 
 button,
@@ -48,19 +62,24 @@ button {
   flex-direction: column;
   align-items: stretch;
   gap: 22px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(12, 15, 18, 0.92);
+  border-right: 1px solid var(--hv-border);
+  background:
+    linear-gradient(180deg, rgba(26, 18, 52, 0.74), rgba(7, 8, 13, 0.94)),
+    rgba(12, 15, 18, 0.92);
   padding: 16px 12px;
+  box-shadow: 14px 0 40px rgba(0, 0, 0, 0.22);
 }
 
 .brand-mark {
   align-self: center;
+  flex: 0 0 58px;
   width: 58px;
   height: 58px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
+  border: 1px solid rgba(240, 138, 54, 0.22);
+  border-radius: 16px;
   overflow: hidden;
   background: #04090b;
+  box-shadow: 0 14px 36px rgba(229, 77, 134, 0.14);
 }
 
 .brand-mark img,
@@ -83,7 +102,7 @@ button {
   justify-content: flex-start;
   gap: 10px;
   min-height: 46px;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 0 10px;
   background: transparent;
   color: #a8afba;
@@ -106,8 +125,11 @@ button {
 
 .nav-button.active,
 .nav-button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(135deg, rgba(167, 60, 176, 0.28), rgba(229, 77, 134, 0.14)),
+    rgba(255, 255, 255, 0.06);
   color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(240, 138, 54, 0.12);
 }
 
 .nav-button:hover {
@@ -129,8 +151,11 @@ button {
   gap: 18px;
   min-height: 82px;
   padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(5, 8, 11, 0.78);
+  border-bottom: 1px solid var(--hv-border);
+  background:
+    linear-gradient(90deg, rgba(15, 12, 26, 0.94), rgba(26, 18, 52, 0.76)),
+    rgba(5, 8, 11, 0.78);
+  backdrop-filter: blur(16px);
 }
 
 .topbar h1 {
@@ -142,7 +167,7 @@ button {
 
 .meta-label {
   margin: 0;
-  color: #fbb127;
+  color: var(--hv-orange);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
@@ -163,8 +188,8 @@ button {
   gap: 6px;
   height: 34px;
   padding: 0 11px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border: 1px solid var(--hv-border-soft);
+  border-radius: 10px;
   color: #d6d9e0;
   font-size: 12px;
   white-space: nowrap;
@@ -189,7 +214,7 @@ button {
   justify-content: center;
   gap: 8px;
   height: 38px;
-  border-radius: 9px;
+  border-radius: 10px;
   padding: 0 14px;
   color: #fff;
   cursor: pointer;
@@ -197,13 +222,14 @@ button {
 }
 
 .ghost-button {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hv-border-soft);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .primary-button {
-  background: linear-gradient(135deg, #fbb127, #ec22a0 56%, #7e3cff);
-  box-shadow: 0 14px 40px rgba(236, 34, 160, 0.26);
+  background: linear-gradient(135deg, var(--hv-orange), var(--hv-pink) 56%, var(--hv-purple));
+  box-shadow: 0 16px 42px rgba(229, 77, 134, 0.3);
 }
 
 .primary-button:disabled {
@@ -215,9 +241,14 @@ button {
 .studio-grid {
   display: grid;
   grid-template-columns: minmax(260px, 330px) minmax(420px, 1fr) minmax(280px, 360px);
+  gap: 12px;
   height: calc(100vh - 82px);
   min-height: 0;
   flex: 1;
+  padding: 12px;
+  background:
+    radial-gradient(circle at 48% 18%, rgba(167, 60, 176, 0.16), transparent 28%),
+    rgba(3, 6, 8, 0.34);
 }
 
 .left-panel,
@@ -225,15 +256,21 @@ button {
   min-width: 0;
   overflow: auto;
   padding: 18px;
-  background: rgba(9, 13, 18, 0.78);
+  border: 1px solid var(--hv-border);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(26, 18, 52, 0.64), rgba(9, 13, 18, 0.86)),
+    var(--hv-surface);
+  box-shadow: var(--hv-shadow);
+  backdrop-filter: blur(18px);
 }
 
 .left-panel {
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid var(--hv-border);
 }
 
 .right-panel {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid var(--hv-border);
 }
 
 .panel-title {
@@ -261,10 +298,12 @@ button {
   grid-template-columns: 28px minmax(0, 1fr) auto;
   align-items: center;
   gap: 7px;
-  min-height: 76px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  min-height: 78px;
+  border: 1px solid rgba(167, 60, 176, 0.16);
+  border-radius: 12px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent),
+    rgba(255, 255, 255, 0.035);
   color: #c5cad4;
   cursor: pointer;
   padding: 10px;
@@ -288,7 +327,7 @@ button {
   align-self: start;
   border-radius: 999px;
   padding: 4px 7px;
-  background: rgba(56, 200, 184, 0.12);
+  background: rgba(56, 200, 184, 0.14);
   color: #9ef8ee;
   font-size: 10px;
   font-weight: 800;
@@ -304,16 +343,19 @@ button {
 }
 
 .module-card.selected {
-  border-color: rgba(236, 34, 160, 0.62);
+  border-color: rgba(229, 77, 134, 0.72);
   background:
-    linear-gradient(135deg, rgba(236, 34, 160, 0.2), rgba(56, 200, 184, 0.08)),
+    linear-gradient(135deg, rgba(167, 60, 176, 0.38), rgba(229, 77, 134, 0.18), rgba(56, 200, 184, 0.08)),
     rgba(255, 255, 255, 0.04);
   color: #fff;
+  box-shadow: 0 14px 34px rgba(167, 60, 176, 0.16);
 }
 
 .module-card:hover {
-  border-color: rgba(251, 177, 39, 0.46);
-  background: rgba(251, 177, 39, 0.1);
+  border-color: rgba(240, 138, 54, 0.52);
+  background:
+    linear-gradient(135deg, rgba(240, 138, 54, 0.14), rgba(167, 60, 176, 0.12)),
+    rgba(255, 255, 255, 0.04);
   color: #fff;
   transform: translateY(-1px);
 }
@@ -341,11 +383,24 @@ button {
 .field select,
 .chat-input input {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9px;
+  border: 1px solid rgba(167, 60, 176, 0.2);
+  border-radius: 10px;
   outline: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(15, 12, 26, 0.56);
   color: #f8f9fb;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.field textarea:focus,
+.field input:focus,
+.field select:focus,
+.chat-input input:focus {
+  border-color: rgba(240, 138, 54, 0.72);
+  background: rgba(15, 12, 26, 0.72);
+  box-shadow: 0 0 0 3px rgba(240, 138, 54, 0.1);
 }
 
 .field textarea {
@@ -366,9 +421,14 @@ button {
   grid-template-rows: 58px minmax(260px, 1fr) 190px;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--hv-border);
+  border-radius: 18px;
   background:
-    radial-gradient(circle at 50% 20%, rgba(126, 60, 255, 0.18), transparent 26%),
+    radial-gradient(circle at 50% 20%, rgba(167, 60, 176, 0.2), transparent 28%),
+    linear-gradient(145deg, rgba(26, 18, 52, 0.52), rgba(7, 11, 16, 0.94)),
     #070b10;
+  box-shadow: var(--hv-shadow);
 }
 
 .canvas-toolbar {
@@ -377,7 +437,8 @@ button {
   justify-content: space-between;
   gap: 16px;
   padding: 0 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--hv-border);
+  background: rgba(15, 12, 26, 0.42);
 }
 
 .canvas-toolbar > div:first-child {
@@ -392,9 +453,9 @@ button {
 
 .segmented-control {
   padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(167, 60, 176, 0.22);
+  border-radius: 12px;
+  background: rgba(15, 12, 26, 0.56);
 }
 
 .segmented-control button {
@@ -409,6 +470,7 @@ button {
 .segmented-control button.active {
   background: #fff;
   color: #090d12;
+  box-shadow: 0 6px 20px rgba(240, 138, 54, 0.16);
 }
 
 .preview-stage {
@@ -417,6 +479,9 @@ button {
   min-height: 0;
   overflow: hidden;
   padding: 18px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(229, 77, 134, 0.1), transparent 36%),
+    linear-gradient(135deg, rgba(15, 12, 26, 0.12), rgba(26, 18, 52, 0.28));
 }
 
 .preview-phone {
@@ -424,14 +489,16 @@ button {
   width: min(286px, 44vh, 62vw);
   aspect-ratio: 9 / 16;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 30px;
   background:
-    linear-gradient(145deg, rgba(251, 177, 39, 0.26), transparent 24%),
-    linear-gradient(210deg, rgba(236, 34, 160, 0.42), transparent 48%),
-    linear-gradient(320deg, rgba(126, 60, 255, 0.38), transparent 52%),
+    linear-gradient(145deg, rgba(240, 138, 54, 0.24), transparent 24%),
+    linear-gradient(210deg, rgba(229, 77, 134, 0.42), transparent 48%),
+    linear-gradient(320deg, rgba(167, 60, 176, 0.38), transparent 52%),
     #05080a;
-  box-shadow: 0 34px 100px rgba(0, 0, 0, 0.42);
+  box-shadow:
+    0 34px 100px rgba(0, 0, 0, 0.46),
+    0 0 0 12px rgba(255, 255, 255, 0.025);
 }
 
 .preview-topline {
@@ -453,8 +520,9 @@ button {
   height: 120px;
   transform: translateX(-50%);
   overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  border: 1px solid rgba(240, 138, 54, 0.18);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
 }
 
 .preview-copy {
@@ -494,17 +562,19 @@ button {
 }
 
 .play-button.playing {
-  background: linear-gradient(135deg, #fbb127, #ec22a0);
+  background: linear-gradient(135deg, var(--hv-orange), var(--hv-pink));
   color: #fff;
 }
 
 .timeline {
   display: grid;
-  gap: 9px;
+  gap: 6px;
   min-height: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(4, 7, 10, 0.9);
-  padding: 12px 18px 16px;
+  border-top: 1px solid var(--hv-border);
+  background:
+    linear-gradient(180deg, rgba(26, 18, 52, 0.68), rgba(4, 7, 10, 0.94)),
+    rgba(4, 7, 10, 0.9);
+  padding: 10px 18px 12px;
 }
 
 .timeline-head {
@@ -535,7 +605,7 @@ button {
 
 .timeline-zoom input {
   width: 96px;
-  accent-color: #38c8b8;
+  accent-color: var(--hv-cyan);
 }
 
 .timeline-zoom span {
@@ -548,17 +618,17 @@ button {
   grid-template-columns: 78px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
-  min-height: 32px;
+  min-height: 26px;
   color: #8e97a6;
   font-size: 12px;
 }
 
 .clip-row {
   position: relative;
-  height: 30px;
+  height: 26px;
   overflow: hidden;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .clip-strip {
@@ -574,10 +644,10 @@ button {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 7px;
+  border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(56, 200, 184, 0.32), transparent 48%),
-    linear-gradient(225deg, rgba(236, 34, 160, 0.42), transparent 54%),
+    linear-gradient(225deg, rgba(229, 77, 134, 0.42), transparent 54%),
     #111821;
 }
 
@@ -604,15 +674,15 @@ button {
 }
 
 .clip-1 {
-  background: rgba(236, 34, 160, 0.72);
+  background: rgba(229, 77, 134, 0.72);
 }
 
 .clip-2 {
-  background: rgba(251, 177, 39, 0.72);
+  background: rgba(240, 138, 54, 0.76);
 }
 
 .clip-3 {
-  background: rgba(126, 60, 255, 0.72);
+  background: rgba(167, 60, 176, 0.74);
 }
 
 .clip-4 {
@@ -628,23 +698,26 @@ button {
 }
 
 .chat-bubble {
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 11px;
   font-size: 12px;
   line-height: 1.45;
 }
 
 .chat-bubble.assistant {
-  background: rgba(236, 34, 160, 0.14);
+  border: 1px solid rgba(229, 77, 134, 0.12);
+  background: rgba(229, 77, 134, 0.14);
   color: #f5d9ed;
 }
 
 .chat-bubble.system {
-  background: rgba(251, 177, 39, 0.12);
+  border: 1px solid rgba(240, 138, 54, 0.12);
+  background: rgba(240, 138, 54, 0.12);
   color: #ffe4a8;
 }
 
 .chat-bubble.user {
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
@@ -658,7 +731,7 @@ button {
 .quick-prompts button {
   min-height: 34px;
   border: 1px solid rgba(56, 200, 184, 0.18);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 0 10px;
   background: rgba(56, 200, 184, 0.08);
   color: #d9fffb;
@@ -687,8 +760,8 @@ button {
 .chat-input button {
   display: grid;
   place-items: center;
-  border-radius: 9px;
-  background: #fff;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fff, #f7e8ff);
   color: #080c10;
   cursor: pointer;
 }
@@ -705,8 +778,8 @@ button {
   gap: 9px;
   min-height: 44px;
   overflow: hidden;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  border: 1px dashed rgba(167, 60, 176, 0.28);
+  border-radius: 12px;
   padding: 0 11px;
   color: #d8dce4;
   font-size: 12px;
@@ -718,7 +791,7 @@ button {
 
 .upload-box:hover {
   border-color: rgba(56, 200, 184, 0.38);
-  background: rgba(56, 200, 184, 0.06);
+  background: rgba(56, 200, 184, 0.07);
 }
 
 .upload-box input {
@@ -745,10 +818,12 @@ button {
   width: min(720px, 100%);
   max-height: calc(100vh - 44px);
   overflow: auto;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
+  border: 1px solid var(--hv-border);
+  border-radius: 16px;
   padding: 18px;
-  background: #080d12;
+  background:
+    linear-gradient(145deg, rgba(26, 18, 52, 0.92), rgba(8, 13, 18, 0.96)),
+    #080d12;
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.52);
 }
 
@@ -783,8 +858,8 @@ button {
   place-items: center;
   min-height: 300px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border: 1px solid rgba(167, 60, 176, 0.22);
+  border-radius: 12px;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(0deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
@@ -848,7 +923,7 @@ button {
 }
 
 .modal-controls input {
-  accent-color: #38c8b8;
+  accent-color: var(--hv-cyan);
 }
 
 .modal-actions {
@@ -917,9 +992,14 @@ button {
   gap: 18px;
   min-height: 0;
   padding: 32px;
+  margin: 12px;
+  border: 1px solid var(--hv-border);
+  border-radius: 18px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent 34%),
+    radial-gradient(circle at 18% 16%, rgba(240, 138, 54, 0.12), transparent 30%),
+    linear-gradient(145deg, rgba(26, 18, 52, 0.68), rgba(7, 11, 16, 0.92)),
     #070b10;
+  box-shadow: var(--hv-shadow);
 }
 
 .section-hero {
@@ -953,10 +1033,10 @@ button {
   align-items: center;
   gap: 9px;
   min-height: 46px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border: 1px solid rgba(167, 60, 176, 0.18);
+  border-radius: 12px;
   padding: 0 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.055);
   color: #f3f5f8;
   font-size: 13px;
 }
@@ -968,9 +1048,9 @@ button {
 
 .section-note {
   max-width: 720px;
-  border-left: 3px solid #fbb127;
+  border-left: 3px solid var(--hv-orange);
   padding: 12px 14px;
-  background: rgba(251, 177, 39, 0.1);
+  background: rgba(240, 138, 54, 0.11);
   color: #ffe4a8;
   font-size: 13px;
   line-height: 1.5;
