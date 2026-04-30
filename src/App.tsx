@@ -86,14 +86,88 @@ const modules: Array<{
   }
 ];
 
-const navItems = [
-  { label: "Studio", icon: Film },
-  { label: "Assets", icon: Image },
-  { label: "Audio", icon: Music2 },
-  { label: "Legendas", icon: Captions },
-  { label: "Publicar", icon: Share2 },
-  { label: "Ajustes", icon: Settings2 }
+type NavLabel = "Studio" | "Assets" | "Audio" | "Legendas" | "Publicar" | "Ajustes";
+
+const navItems: Array<{
+  label: NavLabel;
+  path: string;
+  icon: typeof Film;
+}> = [
+  { label: "Studio", path: "/studio", icon: Film },
+  { label: "Assets", path: "/assets", icon: Image },
+  { label: "Audio", path: "/audio", icon: Music2 },
+  { label: "Legendas", path: "/legendas", icon: Captions },
+  { label: "Publicar", path: "/publicar", icon: Share2 },
+  { label: "Ajustes", path: "/ajustes", icon: Settings2 }
 ];
+
+const routeByPath = new Map(navItems.map((item) => [item.path, item]));
+
+const sectionPlaceholders: Record<
+  Exclude<NavLabel, "Studio">,
+  {
+    title: string;
+    eyebrow: string;
+    description: string;
+    items: string[];
+  }
+> = {
+  Assets: {
+    title: "Assets",
+    eyebrow: "Biblioteca",
+    description:
+      "Area reservada para organizar videos, imagens, logos e referencias antes da geracao.",
+    items: ["Uploads do projeto", "Referencias visuais", "Kits de marca"]
+  },
+  Audio: {
+    title: "Audio",
+    eyebrow: "Som e trilha",
+    description:
+      "Area reservada para trilhas, vozes, stems, efeitos e sincronizacao com o corte.",
+    items: ["Trilha principal", "Voiceover", "Efeitos e stems"]
+  },
+  Legendas: {
+    title: "Legendas",
+    eyebrow: "Texto na tela",
+    description:
+      "Area reservada para gerar, revisar e exportar legendas em formatos sociais.",
+    items: ["Transcricao", "Estilo de legenda", "Exportacao SRT/VTT"]
+  },
+  Publicar: {
+    title: "Publicar",
+    eyebrow: "Distribuicao",
+    description:
+      "Area reservada para preparar variacoes, metadados e publicacao em canais sociais.",
+    items: ["Pacote final", "Copy e hashtags", "Agendamento"]
+  },
+  Ajustes: {
+    title: "Ajustes",
+    eyebrow: "Preferencias",
+    description:
+      "Area reservada para configurar conta, provedores, presets e chaves do workspace.",
+    items: ["Conta", "Modelos e APIs", "Padroes do editor"]
+  }
+};
+
+function routeFromPath(pathname: string) {
+  let normalizedPath = pathname || "/";
+
+  while (normalizedPath.startsWith("/r/")) {
+    normalizedPath = normalizedPath.slice(2);
+  }
+
+  if (normalizedPath === "/" || normalizedPath === "/r") {
+    normalizedPath = "/studio";
+  }
+
+  const item = routeByPath.get(normalizedPath) ?? routeByPath.get("/studio")!;
+  return item;
+}
+
+function initialToolFromLocation(): NavLabel {
+  if (typeof window === "undefined") return "Studio";
+  return routeFromPath(window.location.pathname).label;
+}
 
 const providerStateLabels = {
   ready: "pronto",
@@ -104,7 +178,7 @@ const providerStateLabels = {
 
 function App() {
   const [form, setForm] = useState(initialForm);
-  const [activeTool, setActiveTool] = useState("Studio");
+  const [activeTool, setActiveTool] = useState<NavLabel>(initialToolFromLocation);
   const [messages, setMessages] = useState<ChatMessage[]>(assistantSeed);
   const [chatInput, setChatInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -122,6 +196,23 @@ function App() {
     () => modules.find((module) => module.id === form.module)!,
     [form.module]
   );
+
+  const activeSection = activeTool === "Studio" ? null : sectionPlaceholders[activeTool];
+
+  useEffect(() => {
+    const syncRoute = () => {
+      const route = routeFromPath(window.location.pathname);
+      setActiveTool(route.label);
+
+      if (window.location.pathname !== route.path) {
+        window.history.replaceState(null, "", route.path);
+      }
+    };
+
+    syncRoute();
+    window.addEventListener("popstate", syncRoute);
+    return () => window.removeEventListener("popstate", syncRoute);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -150,6 +241,15 @@ function App() {
     value: GenerationForm[K]
   ) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const openTool = (item: (typeof navItems)[number]) => {
+    setActiveTool(item.label);
+    setStatusLine(`Ferramenta ativa: ${item.label}`);
+
+    if (window.location.pathname !== item.path) {
+      window.history.pushState(null, "", item.path);
+    }
   };
 
   const submitChat = () => {
@@ -230,16 +330,13 @@ function App() {
           <img src="/helena-video-logo.jpeg" alt="Helena Video" />
         </div>
         <nav className="rail-nav" aria-label="Ferramentas">
-          {navItems.map((item, index) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 className={activeTool === item.label ? "nav-button active" : "nav-button"}
                 key={item.label}
-                onClick={() => {
-                  setActiveTool(item.label);
-                  setStatusLine(`Ferramenta ativa: ${item.label}`);
-                }}
+                onClick={() => openTool(item)}
               >
                 <Icon size={19} />
                 <span>{item.label}</span>
@@ -275,6 +372,27 @@ function App() {
           </div>
         </header>
 
+        {activeSection ? (
+          <section className="section-placeholder" aria-label={activeSection.title}>
+            <div className="section-hero">
+              <span className="meta-label">{activeSection.eyebrow}</span>
+              <h2>{activeSection.title}</h2>
+              <p>{activeSection.description}</p>
+            </div>
+            <div className="section-list">
+              {activeSection.items.map((item) => (
+                <div className="section-list-item" key={item}>
+                  <CheckCircle2 size={16} />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div className="section-note">
+              Esta secao esta preparada no frontend e sera conectada aos fluxos da Helena conforme
+              as APIs forem liberadas.
+            </div>
+          </section>
+        ) : (
         <div className="studio-grid">
           <section className="left-panel">
             <div className="panel-title">
@@ -513,6 +631,7 @@ function App() {
             </div>
           </aside>
         </div>
+        )}
       </section>
     </main>
   );

@@ -1,5 +1,43 @@
 {
   "framework": "vite",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/studio",
+      "permanent": false
+    },
+    {
+      "source": "/r/:path*",
+      "destination": "/:path*",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/studio",
+      "destination": "/"
+    },
+    {
+      "source": "/assets",
+      "destination": "/"
+    },
+    {
+      "source": "/audio",
+      "destination": "/"
+    },
+    {
+      "source": "/legendas",
+      "destination": "/"
+    },
+    {
+      "source": "/publicar",
+      "destination": "/"
+    },
+    {
+      "source": "/ajustes",
+      "destination": "/"
+    }
+  ]
 }

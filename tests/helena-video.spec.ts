@@ -31,6 +31,26 @@ test("core controls update visible state", async ({ page }) => {
   await expect(page.getByText("crie tres hooks")).toBeVisible();
 });
 
+test("sidebar navigation opens workspace sections", async ({ page }) => {
+  await gotoStudio(page);
+
+  await page.getByRole("button", { name: "Assets" }).click();
+  await expect(page).toHaveURL(/\/assets$/);
+  await expect(page.getByRole("heading", { name: "Assets" })).toBeVisible();
+  await expect(page.getByText("Uploads do projeto")).toBeVisible();
+
+  await page.getByRole("button", { name: "Studio" }).click();
+  await expect(page).toHaveURL(/\/studio$/);
+  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
+});
+
+test("legacy r-prefixed studio routes are normalized", async ({ page }) => {
+  await page.goto("/r/r/studio", { waitUntil: "domcontentloaded" });
+
+  await expect(page).toHaveURL(/\/studio$/);
+  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
+});
+
 test("export action downloads project json", async ({ page }) => {
   await gotoStudio(page);
   const downloadPromise = page.waitForEvent("download");

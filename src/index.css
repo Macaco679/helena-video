@@ -37,7 +37,7 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 86px minmax(0, 1fr);
+  grid-template-columns: 136px minmax(0, 1fr);
   min-height: 100vh;
   overflow: hidden;
 }
@@ -45,14 +45,15 @@ button {
 .rail {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 22px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(5, 8, 11, 0.86);
-  padding: 16px 10px;
+  background: rgba(12, 15, 18, 0.92);
+  padding: 16px 12px;
 }
 
 .brand-mark {
+  align-self: center;
   width: 58px;
   height: 58px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -76,28 +77,40 @@ button {
 }
 
 .nav-button {
-  display: grid;
-  place-items: center;
-  gap: 4px;
-  min-height: 58px;
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 46px;
+  border-radius: 8px;
+  padding: 0 10px;
   background: transparent;
   color: #a8afba;
   cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .nav-button span {
-  max-width: 68px;
+  max-width: 82px;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 10px;
-  line-height: 1;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .nav-button.active,
 .nav-button:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
+}
+
+.nav-button:hover {
+  transform: translateX(2px);
 }
 
 .workspace {
@@ -245,6 +258,11 @@ button {
   background: rgba(255, 255, 255, 0.04);
   color: #c5cad4;
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .module-card span {
@@ -255,6 +273,13 @@ button {
   border-color: rgba(236, 34, 160, 0.62);
   background: rgba(236, 34, 160, 0.14);
   color: #fff;
+}
+
+.module-card:hover {
+  border-color: rgba(251, 177, 39, 0.46);
+  background: rgba(251, 177, 39, 0.1);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .field,
@@ -632,6 +657,71 @@ button {
   color: #ff9c9c;
 }
 
+.section-placeholder {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-height: 0;
+  padding: 32px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent 34%),
+    #070b10;
+}
+
+.section-hero {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+}
+
+.section-hero h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1.05;
+}
+
+.section-hero p {
+  margin: 0;
+  color: #b8c0cc;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.section-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  gap: 12px;
+}
+
+.section-list-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f5f8;
+  font-size: 13px;
+}
+
+.section-list-item svg {
+  flex: none;
+  color: #8ef3b0;
+}
+
+.section-note {
+  max-width: 720px;
+  border-left: 3px solid #fbb127;
+  padding: 12px 14px;
+  background: rgba(251, 177, 39, 0.1);
+  color: #ffe4a8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (max-width: 1180px) {
   .studio-grid {
     grid-template-columns: 280px minmax(0, 1fr);
@@ -663,7 +753,7 @@ button {
   }
 
   .nav-button {
-    min-width: 68px;
+    min-width: 104px;
   }
 
   .topbar,
@@ -683,6 +773,14 @@ button {
   .left-panel,
   .right-panel {
     border: 0;
+  }
+
+  .section-placeholder {
+    padding: 22px;
+  }
+
+  .section-list {
+    grid-template-columns: 1fr;
   }
 
   .track {
