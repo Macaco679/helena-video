@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Clapperboard,
   Cloud,
+  Crop,
   Download,
   Film,
   Gauge,
@@ -20,7 +21,9 @@ import {
   SlidersHorizontal,
   Sparkles,
   Upload,
-  Wand2
+  Wand2,
+  X,
+  ZoomIn
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { appConfig, hasSupabaseConfig } from "./lib/config";
@@ -65,26 +68,50 @@ const modules: Array<{
   label: string;
   icon: typeof Wand2;
   description: string;
+  badge: string;
 }> = [
   {
     id: "module1",
     label: "Transformar",
     icon: Wand2,
-    description: "Reprocessa video enviado com look, camera e acabamento."
+    description: "Reprocessa video enviado com look, camera e acabamento.",
+    badge: "Video to video"
   },
   {
     id: "module2",
     label: "Storyboard",
     icon: Clapperboard,
-    description: "Gera sequencia de cenas a partir de prompt e referencias."
+    description: "Gera sequencia de cenas a partir de prompt e referencias.",
+    badge: "Prompt to video"
   },
   {
     id: "autocut",
     label: "AutoCut",
     icon: Scissors,
-    description: "Cria cortes sociais, highlights e variacoes curtas."
+    description: "Cria cortes sociais, highlights e variacoes curtas.",
+    badge: "Social cuts"
   }
 ];
+
+const quickPrompts = [
+  "Corte os melhores trechos com foco no rosto",
+  "Gere legendas dinamicas para Reels",
+  "Sugira uma trilha moderna e cortes no beat"
+];
+
+const timelineTracks = [
+  { name: "Video", className: "clip-1" },
+  { name: "Audio", className: "clip-2" },
+  { name: "Legendas", className: "clip-3" },
+  { name: "Efeitos", className: "clip-4" }
+];
+
+type UploadReview = {
+  type: "video" | "audio" | "reference";
+  fileName: string;
+  previewUrl: string | null;
+  mediaKind: "video" | "audio" | "image" | "file";
+};
 
 type NavLabel = "Studio" | "Assets" | "Audio" | "Legendas" | "Publicar" | "Ajustes";
 
@@ -184,6 +211,9 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [statusLine, setStatusLine] = useState("Workspace local pronto");
+  const [timelineZoom, setTimelineZoom] = useState(72);
+  const [uploadReview, setUploadReview] = useState<UploadReview | null>(null);
+  const [cropZoom, setCropZoom] = useState(1);
   const [apiStatus, setApiStatus] = useState<"checking" | "online" | "blocked">("checking");
   const [supabaseStatus, setSupabaseStatus] = useState<
     "checking" | "online" | "invalid" | "missing"
@@ -236,6 +266,14 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (uploadReview?.previewUrl) {
+        URL.revokeObjectURL(uploadReview.previewUrl);
+      }
+    };
+  }, [uploadReview?.previewUrl]);
+
   const updateForm = <K extends keyof GenerationForm>(
     key: K,
     value: GenerationForm[K]
@@ -252,11 +290,12 @@ function App() {
     }
   };
 
-  const submitChat = () => {
-    if (!chatInput.trim()) return;
+  const submitChat = (preset?: string) => {
+    const content = preset ?? chatInput.trim();
+    if (!content.trim()) return;
     setMessages((current) => [
       ...current,
-      { role: "user", content: chatInput.trim() },
+      { role: "user", content: content.trim() },
       {
         role: "assistant",
         content:
@@ -264,6 +303,29 @@ function App() {
       }
     ]);
     setChatInput("");
+  };
+
+  const openUploadReview = (
+    file: File,
+    type: UploadReview["type"],
+    mediaKind: UploadReview["mediaKind"]
+  ) => {
+    setCropZoom(1);
+    setUploadReview({
+      type,
+      fileName: file.name,
+      previewUrl:
+        mediaKind === "video" || mediaKind === "audio" || mediaKind === "image"
+          ? URL.createObjectURL(file)
+          : null,
+      mediaKind
+    });
+    setStatusLine(`Midia carregada: ${file.name}`);
+  };
+
+  const confirmUploadReview = () => {
+    setStatusLine(`Enquadramento confirmado em ${cropZoom.toFixed(1)}x`);
+    setUploadReview(null);
   };
 
   const exportProject = () => {
@@ -411,6 +473,8 @@ function App() {
                   >
                     <Icon size={18} />
                     <span>{module.label}</span>
+                    <small>{module.badge}</small>
+                    <p>{module.description}</p>
                   </button>
                 );
               })}
@@ -532,16 +596,43 @@ function App() {
 
             <div className="timeline">
               <div className="timeline-head">
-                <span>{statusLine}</span>
-                <span>00:00 / 00:{String(form.durationSeconds).padStart(2, "0")}</span>
+                <div>
+                  <span>{statusLine}</span>
+                  <strong>00:00 / 00:{String(form.durationSeconds).padStart(2, "0")}</strong>
+                </div>
+                <label className="timeline-zoom">
+                  <ZoomIn size={14} />
+                  <input
+                    aria-label="Zoom da timeline"
+                    type="range"
+                    min={48}
+                    max={132}
+                    value={timelineZoom}
+                    onChange={(event) => setTimelineZoom(Number(event.target.value))}
+                  />
+                  <span>{timelineZoom}%</span>
+                </label>
               </div>
-              {["Vídeo", "Áudio", "Legendas", "Efeitos"].map((track, index) => (
-                <div className="track" key={track}>
-                  <span>{track}</span>
+              {timelineTracks.map((track, index) => (
+                <div className="track" key={track.name}>
+                  <span>{track.name}</span>
                   <div className="clip-row">
-                    <div className={`clip clip-${index + 1}`} style={{ width: `${52 + index * 9}%` }}>
-                      {track === "Vídeo" ? selectedModule.description : track}
-                    </div>
+                    {track.name === "Video" ? (
+                      <div className="clip-strip" style={{ width: `${timelineZoom + 58}%` }}>
+                        {Array.from({ length: form.shotCount }).map((_, shotIndex) => (
+                          <div className="clip-thumb" key={shotIndex}>
+                            <span>{shotIndex + 1}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className={`clip ${track.className}`}
+                        style={{ width: `${Math.min(96, 46 + index * 12 + timelineZoom / 6)}%` }}
+                      >
+                        {track.name === "Audio" ? "Sincronia com trilha" : track.name}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -560,6 +651,13 @@ function App() {
                 </div>
               ))}
             </div>
+            <div className="quick-prompts" aria-label="Comandos rapidos da Helena">
+              {quickPrompts.map((prompt) => (
+                <button key={prompt} onClick={() => submitChat(prompt)}>
+                  {prompt}
+                </button>
+              ))}
+            </div>
             <div className="chat-input">
               <input
                 value={chatInput}
@@ -569,7 +667,7 @@ function App() {
                 }}
                 placeholder="Pedir roteiro, legenda, corte..."
               />
-              <button onClick={submitChat} aria-label="Enviar mensagem">
+              <button onClick={() => submitChat()} aria-label="Enviar mensagem">
                 <MessageSquareText size={17} />
               </button>
             </div>
@@ -581,7 +679,11 @@ function App() {
                 <input
                   type="file"
                   accept="video/*"
-                  onChange={(event) => setVideoFile(event.target.files?.[0] ?? null)}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setVideoFile(file);
+                    if (file) openUploadReview(file, "video", "video");
+                  }}
                 />
               </label>
               <label className="upload-box">
@@ -590,7 +692,11 @@ function App() {
                 <input
                   type="file"
                   accept="audio/*"
-                  onChange={(event) => setAudioFile(event.target.files?.[0] ?? null)}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setAudioFile(file);
+                    if (file) openUploadReview(file, "audio", "audio");
+                  }}
                 />
               </label>
               <label className="upload-box">
@@ -604,9 +710,11 @@ function App() {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(event) =>
-                    setReferenceFiles(Array.from(event.target.files ?? []).slice(0, 3))
-                  }
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []).slice(0, 3);
+                    setReferenceFiles(files);
+                    if (files[0]) openUploadReview(files[0], "reference", "image");
+                  }}
                 />
               </label>
             </div>
@@ -633,6 +741,87 @@ function App() {
         </div>
         )}
       </section>
+      {uploadReview ? (
+        <div className="modal-backdrop" role="presentation">
+          <section
+            aria-label="Ajuste de midia"
+            aria-modal="true"
+            className="upload-modal"
+            role="dialog"
+          >
+            <header className="modal-head">
+              <div>
+                <span className="meta-label">
+                  {uploadReview.type === "reference" ? "Referencia visual" : uploadReview.type}
+                </span>
+                <h2>Ajuste antes de editar</h2>
+              </div>
+              <button
+                aria-label="Fechar ajuste de midia"
+                className="icon-button"
+                onClick={() => setUploadReview(null)}
+              >
+                <X size={18} />
+              </button>
+            </header>
+
+            <div className="crop-preview">
+              {uploadReview.mediaKind === "video" && uploadReview.previewUrl ? (
+                <video
+                  controls
+                  muted
+                  src={uploadReview.previewUrl}
+                  style={{ transform: `scale(${cropZoom})` }}
+                />
+              ) : null}
+              {uploadReview.mediaKind === "image" && uploadReview.previewUrl ? (
+                <img
+                  alt=""
+                  src={uploadReview.previewUrl}
+                  style={{ transform: `scale(${cropZoom})` }}
+                />
+              ) : null}
+              {uploadReview.mediaKind === "audio" && uploadReview.previewUrl ? (
+                <div className="audio-preview">
+                  <Music2 size={26} />
+                  <audio controls src={uploadReview.previewUrl} />
+                </div>
+              ) : null}
+              <div className="crop-safe-area" />
+            </div>
+
+            <div className="modal-controls">
+              <div>
+                <strong>{uploadReview.fileName}</strong>
+                <span>Prepare enquadramento, zoom e revisao antes do job.</span>
+              </div>
+              <label>
+                <Crop size={16} />
+                Zoom
+                <input
+                  aria-label="Zoom do enquadramento"
+                  max={2}
+                  min={1}
+                  onChange={(event) => setCropZoom(Number(event.target.value))}
+                  step={0.1}
+                  type="range"
+                  value={cropZoom}
+                />
+                <span>{cropZoom.toFixed(1)}x</span>
+              </label>
+            </div>
+
+            <div className="modal-actions">
+              <button className="ghost-button" onClick={() => setUploadReview(null)}>
+                Cancelar
+              </button>
+              <button className="primary-button" onClick={confirmUploadReview}>
+                Confirmar enquadramento
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

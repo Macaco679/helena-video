@@ -29,6 +29,14 @@ test("core controls update visible state", async ({ page }) => {
   await page.getByPlaceholder("Pedir roteiro, legenda, corte...").fill("crie tres hooks");
   await page.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(page.getByText("crie tres hooks")).toBeVisible();
+
+  await page.getByRole("button", { name: "Gere legendas dinamicas para Reels" }).click();
+  await expect(
+    page.locator(".chat-bubble.user").filter({ hasText: "Gere legendas dinamicas para Reels" })
+  ).toBeVisible();
+
+  await page.getByLabel("Zoom da timeline").fill("120");
+  await expect(page.getByText("120%")).toBeVisible();
 });
 
 test("sidebar navigation opens workspace sections", async ({ page }) => {
@@ -57,4 +65,24 @@ test("export action downloads project json", async ({ page }) => {
   await page.getByRole("button", { name: /Exportar/ }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toContain("helena-video-project");
+});
+
+test("upload flow opens media adjustment modal", async ({ page }) => {
+  await gotoStudio(page);
+
+  await page.locator('input[accept="image/*"]').setInputFiles({
+    name: "referencia.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+      "base64"
+    )
+  });
+
+  const dialog = page.getByRole("dialog", { name: "Ajuste de midia" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("referencia.png", { exact: true })).toBeVisible();
+  await page.getByLabel("Zoom do enquadramento").fill("1.5");
+  await page.getByRole("button", { name: "Confirmar enquadramento" }).click();
+  await expect(page.getByText("Enquadramento confirmado em 1.5x")).toBeVisible();
 });
