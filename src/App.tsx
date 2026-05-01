@@ -144,43 +144,155 @@ const sectionPlaceholders: Record<
     title: string;
     eyebrow: string;
     description: string;
-    items: string[];
+    note: string;
+    stats: Array<{ label: string; value: string }>;
+    items: Array<{ title: string; description: string; state: string }>;
   }
 > = {
   Assets: {
     title: "Assets",
     eyebrow: "Biblioteca",
     description:
-      "Area reservada para organizar videos, imagens, logos e referencias antes da geracao.",
-    items: ["Uploads do projeto", "Referencias visuais", "Kits de marca"]
+      "Organize videos, imagens, logos e referencias antes da geracao.",
+    note: "Biblioteca pronta para preparar entradas de video, imagem e marca antes do envio aos fluxos Helena.",
+    stats: [
+      { label: "Slots", value: "3 refs" },
+      { label: "Formatos", value: "Video + imagem" },
+      { label: "Origem", value: "Local/URL" }
+    ],
+    items: [
+      {
+        title: "Uploads do projeto",
+        description: "Centraliza video base, imagens e arquivos de apoio.",
+        state: "Pronto"
+      },
+      {
+        title: "Referencias visuais",
+        description: "Mantem estilo, personagem, produto e paleta consistentes.",
+        state: "Controle"
+      },
+      {
+        title: "Kits de marca",
+        description: "Prepara logo, cores e notas para geracao ou edicao.",
+        state: "Marca"
+      }
+    ]
   },
   Audio: {
     title: "Audio",
     eyebrow: "Som e trilha",
     description:
-      "Area reservada para trilhas, vozes, stems, efeitos e sincronizacao com o corte.",
-    items: ["Trilha principal", "Voiceover", "Efeitos e stems"]
+      "Controle trilhas, vozes, stems, efeitos e sincronizacao com o corte.",
+    note: "Audio pronto para combinar upload, sugestao por IA e sincronizacao por beat dentro do job.",
+    stats: [
+      { label: "Entrada", value: "Trilha/voz" },
+      { label: "Sync", value: "Beat cut" },
+      { label: "Saida", value: "Mix social" }
+    ],
+    items: [
+      {
+        title: "Trilha principal",
+        description: "Define mood, duracao e ponto de entrada para o corte.",
+        state: "Sync"
+      },
+      {
+        title: "Voiceover",
+        description: "Reserva roteiro, idioma e guia de narracao.",
+        state: "IA"
+      },
+      {
+        title: "Efeitos e stems",
+        description: "Separa impactos, transicoes e camadas de acabamento.",
+        state: "Mix"
+      }
+    ]
   },
   Legendas: {
     title: "Legendas",
     eyebrow: "Texto na tela",
     description:
-      "Area reservada para gerar, revisar e exportar legendas em formatos sociais.",
-    items: ["Transcricao", "Estilo de legenda", "Exportacao SRT/VTT"]
+      "Gere, revise e exporte legendas em formatos sociais.",
+    note: "Legendas preparadas para transcricao, estilo visual e exportacao SRT/VTT por projeto.",
+    stats: [
+      { label: "Idioma", value: "PT/EN" },
+      { label: "Estilo", value: "Social" },
+      { label: "Arquivo", value: "SRT/VTT" }
+    ],
+    items: [
+      {
+        title: "Transcricao",
+        description: "Cria texto base para fala, gancho e chamadas.",
+        state: "Texto"
+      },
+      {
+        title: "Estilo de legenda",
+        description: "Define peso, cor, safe area e ritmo de leitura.",
+        state: "Visual"
+      },
+      {
+        title: "Exportacao SRT/VTT",
+        description: "Prepara arquivo de legenda para plataformas externas.",
+        state: "Entrega"
+      }
+    ]
   },
   Publicar: {
     title: "Publicar",
     eyebrow: "Distribuicao",
     description:
-      "Area reservada para preparar variacoes, metadados e publicacao em canais sociais.",
-    items: ["Pacote final", "Copy e hashtags", "Agendamento"]
+      "Prepare variacoes, metadados e publicacao em canais sociais.",
+    note: "Publicacao pronta para empacotar render, copy, hashtags e checklist por canal.",
+    stats: [
+      { label: "Canais", value: "Reels/TikTok" },
+      { label: "Pacote", value: "Render + copy" },
+      { label: "Controle", value: "Checklist" }
+    ],
+    items: [
+      {
+        title: "Pacote final",
+        description: "Consolida video, capa, legenda e arquivos de apoio.",
+        state: "Final"
+      },
+      {
+        title: "Copy e hashtags",
+        description: "Gera variacoes de titulo, descricao e CTA.",
+        state: "IA"
+      },
+      {
+        title: "Agendamento",
+        description: "Organiza entrega por plataforma e data de publicacao.",
+        state: "Fila"
+      }
+    ]
   },
   Ajustes: {
     title: "Ajustes",
     eyebrow: "Preferencias",
     description:
-      "Area reservada para configurar conta, provedores, presets e chaves do workspace.",
-    items: ["Conta", "Modelos e APIs", "Padroes do editor"]
+      "Configure conta, provedores, presets e chaves do workspace.",
+    note: "Ajustes mantem o produto separado e deixa claro quais provedores estao prontos, pendentes ou inativos.",
+    stats: [
+      { label: "Dados", value: "Supabase" },
+      { label: "Motor", value: "Helena API" },
+      { label: "Escopo", value: "Separado" }
+    ],
+    items: [
+      {
+        title: "Conta",
+        description: "Agrupa workspace, permissoes e preferencias de produto.",
+        state: "Base"
+      },
+      {
+        title: "Modelos e APIs",
+        description: "Lista chaves, provedores e estados operacionais.",
+        state: "Ops"
+      },
+      {
+        title: "Padroes do editor",
+        description: "Salva qualidade, formato, idioma e presets iniciais.",
+        state: "Preset"
+      }
+    ]
   }
 };
 
@@ -400,7 +512,13 @@ function App() {
     <main className="app-shell">
       <aside className="rail">
         <div className="brand-mark">
-          <img src="/helena-video-logo.jpeg" alt="Helena Video" />
+          <img
+            alt="Helena Video"
+            decoding="async"
+            height={58}
+            src="/helena-video-logo-small.jpeg"
+            width={58}
+          />
         </div>
         <nav className="rail-nav" aria-label="Ferramentas">
           {navGroups.map((group) => (
@@ -464,17 +582,39 @@ function App() {
               <h2>{activeSection.title}</h2>
               <p>{activeSection.description}</p>
             </div>
-            <div className="section-list">
-              {activeSection.items.map((item) => (
-                <div className="section-list-item" key={item}>
-                  <CheckCircle2 size={16} />
-                  <span>{item}</span>
+            <div className="section-dashboard">
+              <div className="section-list">
+                {activeSection.items.map((item) => (
+                  <button
+                    className="section-list-item"
+                    key={item.title}
+                    onClick={() =>
+                      setStatusLine(`${activeSection.title}: ${item.title} pronto para configurar`)
+                    }
+                    type="button"
+                  >
+                    <CheckCircle2 size={16} />
+                    <strong>{item.title}</strong>
+                    <span>{item.description}</span>
+                    <small>{item.state}</small>
+                  </button>
+                ))}
+              </div>
+              <aside className="section-inspector">
+                <span className="meta-label">Operacao</span>
+                <h3>Fila Helena</h3>
+                <div className="section-stats">
+                  {activeSection.stats.map((stat) => (
+                    <div key={stat.label}>
+                      <span>{stat.label}</span>
+                      <strong>{stat.value}</strong>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </aside>
             </div>
             <div className="section-note">
-              Esta secao esta preparada no frontend e sera conectada aos fluxos da Helena conforme
-              as APIs forem liberadas.
+              {statusLine.startsWith(`${activeSection.title}:`) ? statusLine : activeSection.note}
             </div>
           </section>
         ) : (
@@ -605,7 +745,14 @@ function App() {
               <div className="preview-phone">
                 <div className="preview-topline" />
                 <div className="preview-logo">
-                  <img src="/helena-video-logo.jpeg" alt="" />
+                  <img
+                    alt=""
+                    decoding="async"
+                    height={192}
+                    loading="lazy"
+                    src="/helena-video-logo-small.jpeg"
+                    width={240}
+                  />
                 </div>
                 <div className="preview-copy">
                   <span>{selectedModule.label}</span>
@@ -624,7 +771,7 @@ function App() {
             <div className="timeline">
               <div className="timeline-head">
                 <div>
-                  <span>{statusLine}</span>
+                  <span aria-live="polite">{statusLine}</span>
                   <strong>00:00 / 00:{String(form.durationSeconds).padStart(2, "0")}</strong>
                 </div>
                 <label className="timeline-zoom">

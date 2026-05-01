@@ -8,9 +8,10 @@
     "build": "tsc && vite build",
     "storybook": "storybook dev -p 6006 --host 127.0.0.1",
     "build-storybook": "storybook build",
-    "audit:lighthouse": "lighthouse http://127.0.0.1:5177/studio --output=html --output-path=./reports/lighthouse.html --chrome-flags=\"--headless=new\"",
+    "audit:lighthouse": "lighthouse http://127.0.0.1:4173/studio --output=html --output-path=./reports/lighthouse.html --chrome-flags=\"--headless=new\"",
     "qa": "playwright test",
     "preview": "vite preview --host 127.0.0.1",
+    "preview:local": "vite preview --host 127.0.0.1 --port 4173",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

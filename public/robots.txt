@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.helenavideo.felpamusic.com.br/sitemap.xml

@@ -14,6 +14,28 @@ test("loads the Helena Video studio shell", async ({ page }) => {
   await expect(page.getByText("Corte IA cinemático")).toBeVisible();
 });
 
+test("publishes baseline SEO assets", async ({ page, request }) => {
+  await gotoStudio(page);
+
+  await expect(page).toHaveTitle("Helena Video | Editor IA");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /editor independente com IA/i
+  );
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+    "href",
+    "/helena-video-logo-small.jpeg"
+  );
+
+  const robots = await request.get("/robots.txt");
+  expect(robots.ok()).toBeTruthy();
+  await expect(await robots.text()).toContain("Sitemap:");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.ok()).toBeTruthy();
+  await expect(await sitemap.text()).toContain("/studio");
+});
+
 test("core controls update visible state", async ({ page }) => {
   await gotoStudio(page);
 

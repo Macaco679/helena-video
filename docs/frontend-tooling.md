@@ -22,10 +22,11 @@ Story inicial:
 
 ## Lighthouse
 
-Use com o servidor Vite local rodando em `http://127.0.0.1:5177`.
+Use contra o build de preview, para medir a versao mais proxima da producao.
 
 ```bash
-npm run dev
+npm run build
+npm run preview:local
 npm run audit:lighthouse
 ```
 
@@ -39,12 +40,20 @@ Responsively App foi instalado no Windows em:
 C:\Users\feema\AppData\Local\Programs\ResponsivelyApp\ResponsivelyApp.exe
 ```
 
-Use para abrir `http://127.0.0.1:5177/studio` e revisar desktop, tablet e mobile em paralelo.
+Use para abrir `http://127.0.0.1:4173/studio` e revisar desktop, tablet e mobile em paralelo.
 
 ## Playwright
 
-Continua sendo a validacao automatizada principal.
+Continua sendo a validacao automatizada principal. O Playwright sobe o Vite em `5177` automaticamente quando `PLAYWRIGHT_BASE_URL` nao estiver definido.
 
 ```bash
 npm run qa
+```
+
+Para testar um preview ja aberto:
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL="http://127.0.0.1:4173"
+npm run qa
+Remove-Item Env:PLAYWRIGHT_BASE_URL
 ```
