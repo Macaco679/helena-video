@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc && vite build",
+    "storybook": "storybook dev -p 6006 --host 127.0.0.1",
+    "build-storybook": "storybook build",
+    "audit:lighthouse": "lighthouse http://127.0.0.1:5177/studio --output=html --output-path=./reports/lighthouse.html --chrome-flags=\"--headless=new\"",
     "qa": "playwright test",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit"
@@ -18,9 +21,13 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@storybook/addon-a11y": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "lighthouse": "^12.8.2",
+    "storybook": "^8.6.14",
     "typescript": "^5.6.2",
     "vite": "^6.4.2"
   }

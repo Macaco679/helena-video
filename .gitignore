@@ -12,3 +12,5 @@ supabase/.temp
 .vercel
 test-results
 playwright-report
+storybook-static
+reports
