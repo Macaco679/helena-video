@@ -62,6 +62,15 @@ test("assistant panel can collapse and expand", async ({ page }) => {
   await expect(page.getByPlaceholder("Pedir roteiro, legenda, corte...")).toBeVisible();
 });
 
+test("advanced controls expand on demand", async ({ page }) => {
+  await gotoStudio(page);
+
+  await expect(page.getByLabel("Modelo")).toBeHidden();
+  await page.getByText("Controles avancados").click();
+  await expect(page.getByLabel("Modelo")).toBeVisible();
+  await expect(page.getByLabel("Duracao")).toBeVisible();
+});
+
 test("legacy r-prefixed studio routes are normalized", async ({ page }) => {
   await page.goto("/r/r/studio", { waitUntil: "domcontentloaded" });
 

@@ -413,6 +413,7 @@ function App() {
                     className={activeTool === item.label ? "nav-button active" : "nav-button"}
                     key={item.label}
                     onClick={() => openTool(item)}
+                    title={item.label}
                   >
                     <Icon size={19} />
                     <span>{item.label}</span>
@@ -492,6 +493,7 @@ function App() {
                     className={form.module === module.id ? "module-card selected" : "module-card"}
                     key={module.id}
                     onClick={() => updateForm("module", module.id)}
+                    title={module.description}
                   >
                     <Icon size={18} />
                     <span>{module.label}</span>
@@ -520,57 +522,60 @@ function App() {
               />
             </label>
 
-            <div className="field-grid">
-              <label className="field">
-                Modelo
-                <select
-                  value={form.preferredModel}
-                  onChange={(event) => updateForm("preferredModel", event.target.value)}
-                >
-                  {providerMatrix.map((provider) => (
-                    <option value={provider.id} key={provider.id}>
-                      {provider.id === "helena-native" ? "Helena Native" : provider.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                Qualidade
-                <select
-                  value={form.qualityProfile}
-                  onChange={(event) =>
-                    updateForm("qualityProfile", event.target.value as GenerationForm["qualityProfile"])
-                  }
-                >
-                  <option value="fast">Fast</option>
-                  <option value="pro">Pro</option>
-                  <option value="cinema">Cinema</option>
-                </select>
-              </label>
-            </div>
+            <details className="advanced-settings">
+              <summary>Controles avancados</summary>
+              <div className="field-grid">
+                <label className="field">
+                  Modelo
+                  <select
+                    value={form.preferredModel}
+                    onChange={(event) => updateForm("preferredModel", event.target.value)}
+                  >
+                    {providerMatrix.map((provider) => (
+                      <option value={provider.id} key={provider.id}>
+                        {provider.id === "helena-native" ? "Helena Native" : provider.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  Qualidade
+                  <select
+                    value={form.qualityProfile}
+                    onChange={(event) =>
+                      updateForm("qualityProfile", event.target.value as GenerationForm["qualityProfile"])
+                    }
+                  >
+                    <option value="fast">Fast</option>
+                    <option value="pro">Pro</option>
+                    <option value="cinema">Cinema</option>
+                  </select>
+                </label>
+              </div>
 
-            <div className="field-grid">
-              <label className="field">
-                Duracao
-                <input
-                  type="number"
-                  min={4}
-                  max={60}
-                  value={form.durationSeconds}
-                  onChange={(event) => updateForm("durationSeconds", Number(event.target.value))}
-                />
-              </label>
-              <label className="field">
-                Cenas
-                <input
-                  type="number"
-                  min={1}
-                  max={12}
-                  value={form.shotCount}
-                  onChange={(event) => updateForm("shotCount", Number(event.target.value))}
-                />
-              </label>
-            </div>
+              <div className="field-grid">
+                <label className="field">
+                  Duracao
+                  <input
+                    type="number"
+                    min={4}
+                    max={60}
+                    value={form.durationSeconds}
+                    onChange={(event) => updateForm("durationSeconds", Number(event.target.value))}
+                  />
+                </label>
+                <label className="field">
+                  Cenas
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={form.shotCount}
+                    onChange={(event) => updateForm("shotCount", Number(event.target.value))}
+                  />
+                </label>
+              </div>
+            </details>
           </section>
 
           <section className="canvas-zone">
