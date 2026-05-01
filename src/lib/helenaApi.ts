@@ -1,4 +1,5 @@
 import { appConfig } from "./config";
+import { uploadToStudioStorage } from "./storageUpload";
 import type { GenerationForm } from "./types";
 
 export type HelenaJobResponse = {
@@ -62,11 +63,15 @@ export async function createHelenaJob(
   body.set("shot_count", String(form.shotCount));
   body.set("audio_mode", form.audioMode);
 
-  if (files.video) body.set("video", files.video);
-  if (files.audio) body.set("audio", files.audio);
-  files.references?.slice(0, 3).forEach((file, index) => {
-    body.set(`reference_image_${index + 1}`, file);
-  });
+  if (files.video) {
+    body.set("video_url", await uploadToStudioStorage(files.video, "helena-video"));
+  }
+  if (files.audio) {
+    body.set("audio_url", await uploadToStudioStorage(files.audio, "helena-audio"));
+  }
+  for (const [index, file] of (files.references ?? []).slice(0, 3).entries()) {
+    body.set(`reference_image_${index + 1}_url`, await uploadToStudioStorage(file, "helena-reference"));
+  }
 
   const response = await fetch(requestUrl(endpointForModule(form.module)), {
     method: "POST",
