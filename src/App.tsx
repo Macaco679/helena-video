@@ -26,7 +26,7 @@ import {
   ZoomIn
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { appConfig, hasSupabaseConfig } from "./lib/config";
+import { hasSupabaseConfig } from "./lib/config";
 import { createHelenaJob, fetchHealth } from "./lib/helenaApi";
 import { providerMatrix } from "./lib/providers";
 import { checkSupabaseConnection } from "./lib/supabase";
@@ -115,17 +115,25 @@ type UploadReview = {
 
 type NavLabel = "Studio" | "Assets" | "Audio" | "Legendas" | "Publicar" | "Ajustes";
 
-const navItems: Array<{
+type NavItem = {
   label: NavLabel;
   path: string;
   icon: typeof Film;
-}> = [
+};
+
+const navItems: NavItem[] = [
   { label: "Studio", path: "/studio", icon: Film },
   { label: "Assets", path: "/assets", icon: Image },
   { label: "Audio", path: "/audio", icon: Music2 },
   { label: "Legendas", path: "/legendas", icon: Captions },
   { label: "Publicar", path: "/publicar", icon: Share2 },
   { label: "Ajustes", path: "/ajustes", icon: Settings2 }
+];
+
+const navGroups: Array<{ label: string; items: NavItem[] }> = [
+  { label: "Edicao", items: navItems.filter((item) => ["Studio", "Legendas"].includes(item.label)) },
+  { label: "Midia", items: navItems.filter((item) => ["Assets", "Audio"].includes(item.label)) },
+  { label: "Entrega", items: navItems.filter((item) => ["Publicar", "Ajustes"].includes(item.label)) }
 ];
 
 const routeByPath = new Map(navItems.map((item) => [item.path, item]));
@@ -214,6 +222,7 @@ function App() {
   const [timelineZoom, setTimelineZoom] = useState(72);
   const [uploadReview, setUploadReview] = useState<UploadReview | null>(null);
   const [cropZoom, setCropZoom] = useState(1);
+  const [isAssistantCollapsed, setIsAssistantCollapsed] = useState(false);
   const [apiStatus, setApiStatus] = useState<"checking" | "online" | "blocked">("checking");
   const [supabaseStatus, setSupabaseStatus] = useState<
     "checking" | "online" | "invalid" | "missing"
@@ -228,6 +237,8 @@ function App() {
   );
 
   const activeSection = activeTool === "Studio" ? null : sectionPlaceholders[activeTool];
+  const apiLabel =
+    apiStatus === "online" ? "online" : apiStatus === "blocked" ? "atencao" : "checando";
 
   useEffect(() => {
     const syncRoute = () => {
@@ -392,19 +403,24 @@ function App() {
           <img src="/helena-video-logo.jpeg" alt="Helena Video" />
         </div>
         <nav className="rail-nav" aria-label="Ferramentas">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                className={activeTool === item.label ? "nav-button active" : "nav-button"}
-                key={item.label}
-                onClick={() => openTool(item)}
-              >
-                <Icon size={19} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          {navGroups.map((group) => (
+            <div className="rail-group" key={group.label}>
+              <span className="rail-group-label">{group.label}</span>
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    className={activeTool === item.label ? "nav-button active" : "nav-button"}
+                    key={item.label}
+                    onClick={() => openTool(item)}
+                  >
+                    <Icon size={19} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
       </aside>
 
@@ -415,13 +431,19 @@ function App() {
             <h1>Editor IA independente</h1>
           </div>
           <div className="topbar-actions">
-            <span className={supabaseStatus === "online" ? "status good" : "status warn"}>
+            <span
+              className={supabaseStatus === "online" ? "status good" : "status warn"}
+              title={`Supabase ${supabaseLabel(supabaseStatus)}`}
+            >
               <Cloud size={15} />
-              Supabase {supabaseLabel(supabaseStatus)}
+              Dados {supabaseLabel(supabaseStatus)}
             </span>
-            <span className={apiStatus === "online" ? "status good" : apiStatus === "blocked" ? "status warn" : "status"}>
+            <span
+              className={apiStatus === "online" ? "status good" : apiStatus === "blocked" ? "status warn" : "status"}
+              title={`Helena API ${apiLabel}`}
+            >
               <Gauge size={15} />
-              API {apiStatus === "online" ? "online" : apiStatus === "blocked" ? "bloqueada" : appConfig.helenaProxyUrl ? "proxy" : "checando"}
+              Motor IA {apiLabel}
             </span>
             <button className="ghost-button" onClick={exportProject}>
               <Download size={16} />
@@ -455,7 +477,7 @@ function App() {
             </div>
           </section>
         ) : (
-        <div className="studio-grid">
+        <div className={isAssistantCollapsed ? "studio-grid assistant-collapsed" : "studio-grid"}>
           <section className="left-panel">
             <div className="panel-title">
               <SlidersHorizontal size={18} />
@@ -639,11 +661,32 @@ function App() {
             </div>
           </section>
 
-          <aside className="right-panel">
-            <div className="panel-title">
-              <Bot size={18} />
-              <span>Helena IA</span>
+          <aside className={isAssistantCollapsed ? "right-panel collapsed" : "right-panel"}>
+            <div className="panel-title panel-title-with-action">
+              <div className="panel-title-main">
+                <Bot size={18} />
+                <span>Helena IA</span>
+              </div>
+              <button
+                aria-label={isAssistantCollapsed ? "Expandir Helena IA" : "Recolher Helena IA"}
+                className="panel-toggle"
+                onClick={() => setIsAssistantCollapsed((current) => !current)}
+                type="button"
+              >
+                <MessageSquareText size={16} />
+              </button>
             </div>
+            {isAssistantCollapsed ? (
+              <button
+                className="assistant-collapsed-card"
+                onClick={() => setIsAssistantCollapsed(false)}
+                type="button"
+              >
+                <Bot size={18} />
+                <span>IA pronta</span>
+              </button>
+            ) : (
+              <>
             <div className="chat-feed">
               {messages.map((message, index) => (
                 <div className={`chat-bubble ${message.role}`} key={`${message.role}-${index}`}>
@@ -737,6 +780,8 @@ function App() {
                 </div>
               ))}
             </div>
+              </>
+            )}
           </aside>
         </div>
         )}
@@ -830,7 +875,7 @@ export default App;
 
 function supabaseLabel(status: "checking" | "online" | "invalid" | "missing") {
   if (status === "online") return "online";
-  if (status === "invalid") return "chave inválida";
+  if (status === "invalid") return "atencao";
   if (status === "missing") return "pendente";
   return "checando";
 }

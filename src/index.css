@@ -2,17 +2,17 @@
 
 :root {
   color-scheme: dark;
-  --hv-purple: #a73cb0;
-  --hv-orange: #f08a36;
-  --hv-pink: #e54d86;
-  --hv-bg-dark: #0f0c1a;
-  --hv-bg-light: #1a1234;
-  --hv-cyan: #38c8b8;
-  --hv-surface: rgba(26, 18, 52, 0.58);
-  --hv-surface-strong: rgba(18, 15, 34, 0.86);
-  --hv-border: rgba(167, 60, 176, 0.22);
+  --hv-purple: #9b5ad0;
+  --hv-orange: #e6a35f;
+  --hv-pink: #d86ba1;
+  --hv-bg-dark: #100d18;
+  --hv-bg-light: #1b1528;
+  --hv-cyan: #76d8cf;
+  --hv-surface: rgba(29, 23, 43, 0.62);
+  --hv-surface-strong: rgba(20, 17, 31, 0.9);
+  --hv-border: rgba(214, 107, 161, 0.16);
   --hv-border-soft: rgba(255, 255, 255, 0.08);
-  --hv-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  --hv-shadow: 0 18px 54px rgba(0, 0, 0, 0.3);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -32,10 +32,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 8% 12%, rgba(240, 138, 54, 0.2), transparent 28%),
-    radial-gradient(circle at 92% 8%, rgba(167, 60, 176, 0.22), transparent 30%),
-    radial-gradient(circle at 72% 86%, rgba(56, 200, 184, 0.14), transparent 30%),
-    linear-gradient(135deg, var(--hv-bg-dark), var(--hv-bg-light) 48%, var(--hv-bg-dark));
+    radial-gradient(circle at 14% 10%, rgba(216, 107, 161, 0.16), transparent 31%),
+    radial-gradient(circle at 88% 16%, rgba(155, 90, 208, 0.15), transparent 32%),
+    linear-gradient(135deg, var(--hv-bg-dark), var(--hv-bg-light) 52%, #0c0d13);
 }
 
 button,
@@ -51,7 +50,7 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 136px minmax(0, 1fr);
+  grid-template-columns: 158px minmax(0, 1fr);
   height: 100vh;
   min-height: 100vh;
   overflow: hidden;
@@ -61,13 +60,13 @@ button {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 22px;
+  gap: 20px;
   border-right: 1px solid var(--hv-border);
   background:
-    linear-gradient(180deg, rgba(26, 18, 52, 0.74), rgba(7, 8, 13, 0.94)),
+    linear-gradient(180deg, rgba(29, 23, 43, 0.78), rgba(9, 10, 16, 0.94)),
     rgba(12, 15, 18, 0.92);
-  padding: 16px 12px;
-  box-shadow: 14px 0 40px rgba(0, 0, 0, 0.22);
+  padding: 18px 14px;
+  box-shadow: 12px 0 34px rgba(0, 0, 0, 0.18);
 }
 
 .brand-mark {
@@ -75,11 +74,11 @@ button {
   flex: 0 0 58px;
   width: 58px;
   height: 58px;
-  border: 1px solid rgba(240, 138, 54, 0.22);
+  border: 1px solid rgba(216, 107, 161, 0.18);
   border-radius: 16px;
   overflow: hidden;
   background: #04090b;
-  box-shadow: 0 14px 36px rgba(229, 77, 134, 0.14);
+  box-shadow: 0 14px 32px rgba(216, 107, 161, 0.12);
 }
 
 .brand-mark img,
@@ -92,8 +91,22 @@ button {
 .rail-nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 18px;
   width: 100%;
+}
+
+.rail-group {
+  display: grid;
+  gap: 6px;
+}
+
+.rail-group-label {
+  padding: 0 10px;
+  color: #7f8794;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .nav-button {
@@ -101,9 +114,9 @@ button {
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  min-height: 46px;
-  border-radius: 10px;
-  padding: 0 10px;
+  min-height: 44px;
+  border-radius: 12px;
+  padding: 0 12px;
   background: transparent;
   color: #a8afba;
   cursor: pointer;
@@ -114,7 +127,7 @@ button {
 }
 
 .nav-button span {
-  max-width: 82px;
+  max-width: 96px;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 12px;
@@ -126,10 +139,10 @@ button {
 .nav-button.active,
 .nav-button:hover {
   background:
-    linear-gradient(135deg, rgba(167, 60, 176, 0.28), rgba(229, 77, 134, 0.14)),
+    linear-gradient(135deg, rgba(155, 90, 208, 0.22), rgba(216, 107, 161, 0.13)),
     rgba(255, 255, 255, 0.06);
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(240, 138, 54, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(216, 107, 161, 0.12);
 }
 
 .nav-button:hover {
@@ -149,25 +162,25 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  min-height: 82px;
-  padding: 18px 24px;
+  min-height: 88px;
+  padding: 20px 28px;
   border-bottom: 1px solid var(--hv-border);
   background:
-    linear-gradient(90deg, rgba(15, 12, 26, 0.94), rgba(26, 18, 52, 0.76)),
+    linear-gradient(90deg, rgba(16, 13, 24, 0.94), rgba(29, 23, 43, 0.74)),
     rgba(5, 8, 11, 0.78);
   backdrop-filter: blur(16px);
 }
 
 .topbar h1 {
   margin: 2px 0 0;
-  font-size: 25px;
+  font-size: 27px;
   line-height: 1.1;
   letter-spacing: 0;
 }
 
 .meta-label {
   margin: 0;
-  color: var(--hv-orange);
+  color: #d5a2ef;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
@@ -189,22 +202,23 @@ button {
   height: 34px;
   padding: 0 11px;
   border: 1px solid var(--hv-border-soft);
-  border-radius: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
   color: #d6d9e0;
   font-size: 12px;
   white-space: nowrap;
 }
 
 .status.good {
-  border-color: rgba(142, 243, 176, 0.26);
-  background: rgba(142, 243, 176, 0.08);
-  color: #8ef3b0;
+  border-color: rgba(142, 243, 176, 0.18);
+  background: rgba(142, 243, 176, 0.055);
+  color: #b8f5ca;
 }
 
 .status.warn {
-  border-color: rgba(255, 208, 115, 0.24);
-  background: rgba(255, 208, 115, 0.08);
-  color: #ffd073;
+  border-color: rgba(255, 208, 115, 0.18);
+  background: rgba(255, 208, 115, 0.055);
+  color: #f2d38a;
 }
 
 .ghost-button,
@@ -228,8 +242,8 @@ button {
 }
 
 .primary-button {
-  background: linear-gradient(135deg, var(--hv-orange), var(--hv-pink) 56%, var(--hv-purple));
-  box-shadow: 0 16px 42px rgba(229, 77, 134, 0.3);
+  background: linear-gradient(135deg, var(--hv-pink), var(--hv-purple));
+  box-shadow: 0 14px 34px rgba(216, 107, 161, 0.24);
 }
 
 .primary-button:disabled {
@@ -240,26 +254,30 @@ button {
 
 .studio-grid {
   display: grid;
-  grid-template-columns: minmax(260px, 330px) minmax(420px, 1fr) minmax(280px, 360px);
-  gap: 12px;
-  height: calc(100vh - 82px);
+  grid-template-columns: minmax(286px, 352px) minmax(460px, 1fr) minmax(304px, 380px);
+  gap: 18px;
+  height: calc(100vh - 88px);
   min-height: 0;
   flex: 1;
-  padding: 12px;
+  padding: 18px;
   background:
-    radial-gradient(circle at 48% 18%, rgba(167, 60, 176, 0.16), transparent 28%),
+    radial-gradient(circle at 48% 18%, rgba(155, 90, 208, 0.12), transparent 30%),
     rgba(3, 6, 8, 0.34);
+}
+
+.studio-grid.assistant-collapsed {
+  grid-template-columns: minmax(286px, 352px) minmax(460px, 1fr) 88px;
 }
 
 .left-panel,
 .right-panel {
   min-width: 0;
   overflow: auto;
-  padding: 18px;
+  padding: 22px;
   border: 1px solid var(--hv-border);
-  border-radius: 16px;
+  border-radius: 20px;
   background:
-    linear-gradient(180deg, rgba(26, 18, 52, 0.64), rgba(9, 13, 18, 0.86)),
+    linear-gradient(180deg, rgba(29, 23, 43, 0.62), rgba(10, 12, 18, 0.88)),
     var(--hv-surface);
   box-shadow: var(--hv-shadow);
   backdrop-filter: blur(18px);
@@ -277,36 +295,101 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
   color: #fff;
   font-weight: 700;
 }
 
 .panel-title.compact {
-  margin: 18px 0 10px;
+  margin: 22px 0 12px;
+}
+
+.panel-title-with-action {
+  justify-content: space-between;
+}
+
+.panel-title-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--hv-border-soft);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #d8dce6;
+  cursor: pointer;
+}
+
+.panel-toggle:hover {
+  border-color: rgba(216, 107, 161, 0.28);
+  background: rgba(216, 107, 161, 0.09);
+  color: #fff;
+}
+
+.right-panel.collapsed {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  justify-items: center;
+  overflow: hidden;
+  padding: 16px 10px;
+}
+
+.right-panel.collapsed .panel-title-main span {
+  display: none;
+}
+
+.assistant-collapsed-card {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 190px;
+  border: 1px solid rgba(216, 107, 161, 0.18);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(216, 107, 161, 0.12), rgba(155, 90, 208, 0.08)),
+    rgba(255, 255, 255, 0.04);
+  color: #f1e5f8;
+  cursor: pointer;
+}
+
+.assistant-collapsed-card span {
+  writing-mode: vertical-rl;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .module-switcher {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .module-card {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 7px;
-  min-height: 78px;
-  border: 1px solid rgba(167, 60, 176, 0.16);
-  border-radius: 12px;
+  gap: 9px;
+  min-height: 92px;
+  border: 1px solid rgba(216, 107, 161, 0.14);
+  border-radius: 16px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent),
     rgba(255, 255, 255, 0.035);
   color: #c5cad4;
   cursor: pointer;
-  padding: 10px;
+  padding: 14px;
   text-align: left;
   transition:
     border-color 160ms ease,
@@ -318,7 +401,7 @@ button {
 .module-card span {
   grid-column: 2;
   color: #fff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -327,8 +410,8 @@ button {
   align-self: start;
   border-radius: 999px;
   padding: 4px 7px;
-  background: rgba(56, 200, 184, 0.14);
-  color: #9ef8ee;
+  background: rgba(216, 107, 161, 0.12);
+  color: #f1c8df;
   font-size: 10px;
   font-weight: 800;
   white-space: nowrap;
@@ -338,23 +421,23 @@ button {
   grid-column: 2 / 4;
   margin: 0;
   color: #9fa8b6;
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .module-card.selected {
-  border-color: rgba(229, 77, 134, 0.72);
+  border-color: rgba(216, 107, 161, 0.58);
   background:
-    linear-gradient(135deg, rgba(167, 60, 176, 0.38), rgba(229, 77, 134, 0.18), rgba(56, 200, 184, 0.08)),
+    linear-gradient(135deg, rgba(155, 90, 208, 0.28), rgba(216, 107, 161, 0.16)),
     rgba(255, 255, 255, 0.04);
   color: #fff;
-  box-shadow: 0 14px 34px rgba(167, 60, 176, 0.16);
+  box-shadow: 0 14px 34px rgba(155, 90, 208, 0.14);
 }
 
 .module-card:hover {
-  border-color: rgba(240, 138, 54, 0.52);
+  border-color: rgba(216, 107, 161, 0.42);
   background:
-    linear-gradient(135deg, rgba(240, 138, 54, 0.14), rgba(167, 60, 176, 0.12)),
+    linear-gradient(135deg, rgba(216, 107, 161, 0.13), rgba(155, 90, 208, 0.1)),
     rgba(255, 255, 255, 0.04);
   color: #fff;
   transform: translateY(-1px);
@@ -367,15 +450,15 @@ button {
 }
 
 .field {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   color: #c6cbd6;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .field-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .field textarea,
@@ -383,8 +466,8 @@ button {
 .field select,
 .chat-input input {
   width: 100%;
-  border: 1px solid rgba(167, 60, 176, 0.2);
-  border-radius: 10px;
+  border: 1px solid rgba(216, 107, 161, 0.16);
+  border-radius: 12px;
   outline: none;
   background: rgba(15, 12, 26, 0.56);
   color: #f8f9fb;
@@ -398,16 +481,16 @@ button {
 .field input:focus,
 .field select:focus,
 .chat-input input:focus {
-  border-color: rgba(240, 138, 54, 0.72);
+  border-color: rgba(216, 107, 161, 0.58);
   background: rgba(15, 12, 26, 0.72);
-  box-shadow: 0 0 0 3px rgba(240, 138, 54, 0.1);
+  box-shadow: 0 0 0 3px rgba(216, 107, 161, 0.1);
 }
 
 .field textarea {
   resize: vertical;
   min-height: 80px;
-  padding: 10px 11px;
-  line-height: 1.45;
+  padding: 12px;
+  line-height: 1.5;
 }
 
 .field input,
@@ -418,15 +501,15 @@ button {
 
 .canvas-zone {
   display: grid;
-  grid-template-rows: 58px minmax(230px, 1fr) 224px;
+  grid-template-rows: 64px minmax(250px, 1fr) 232px;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
   border: 1px solid var(--hv-border);
-  border-radius: 18px;
+  border-radius: 20px;
   background:
-    radial-gradient(circle at 50% 20%, rgba(167, 60, 176, 0.2), transparent 28%),
-    linear-gradient(145deg, rgba(26, 18, 52, 0.52), rgba(7, 11, 16, 0.94)),
+    radial-gradient(circle at 50% 20%, rgba(155, 90, 208, 0.14), transparent 30%),
+    linear-gradient(145deg, rgba(29, 23, 43, 0.5), rgba(8, 10, 16, 0.94)),
     #070b10;
   box-shadow: var(--hv-shadow);
 }
@@ -436,7 +519,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 18px;
+  padding: 0 22px;
   border-bottom: 1px solid var(--hv-border);
   background: rgba(15, 12, 26, 0.42);
 }
@@ -453,7 +536,7 @@ button {
 
 .segmented-control {
   padding: 4px;
-  border: 1px solid rgba(167, 60, 176, 0.22);
+  border: 1px solid rgba(216, 107, 161, 0.16);
   border-radius: 12px;
   background: rgba(15, 12, 26, 0.56);
 }
@@ -470,7 +553,7 @@ button {
 .segmented-control button.active {
   background: #fff;
   color: #090d12;
-  box-shadow: 0 6px 20px rgba(240, 138, 54, 0.16);
+  box-shadow: 0 6px 18px rgba(216, 107, 161, 0.14);
 }
 
 .preview-stage {
@@ -478,10 +561,10 @@ button {
   place-items: center;
   min-height: 0;
   overflow: hidden;
-  padding: 18px;
+  padding: 24px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(229, 77, 134, 0.1), transparent 36%),
-    linear-gradient(135deg, rgba(15, 12, 26, 0.12), rgba(26, 18, 52, 0.28));
+    radial-gradient(circle at 50% 50%, rgba(216, 107, 161, 0.08), transparent 38%),
+    linear-gradient(135deg, rgba(16, 13, 24, 0.12), rgba(29, 23, 43, 0.24));
 }
 
 .preview-phone {
@@ -492,9 +575,9 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 30px;
   background:
-    linear-gradient(145deg, rgba(240, 138, 54, 0.24), transparent 24%),
-    linear-gradient(210deg, rgba(229, 77, 134, 0.42), transparent 48%),
-    linear-gradient(320deg, rgba(167, 60, 176, 0.38), transparent 52%),
+    linear-gradient(145deg, rgba(216, 107, 161, 0.2), transparent 28%),
+    linear-gradient(210deg, rgba(155, 90, 208, 0.4), transparent 50%),
+    linear-gradient(320deg, rgba(216, 107, 161, 0.28), transparent 54%),
     #05080a;
   box-shadow:
     0 34px 100px rgba(0, 0, 0, 0.46),
@@ -521,7 +604,7 @@ button {
   transform: translateX(-50%);
   overflow: hidden;
   border-radius: 20px;
-  border: 1px solid rgba(240, 138, 54, 0.18);
+  border: 1px solid rgba(216, 107, 161, 0.18);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
 }
 
@@ -535,7 +618,7 @@ button {
 }
 
 .preview-copy span {
-  color: #ffd073;
+  color: #f0c4dd;
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -562,19 +645,19 @@ button {
 }
 
 .play-button.playing {
-  background: linear-gradient(135deg, var(--hv-orange), var(--hv-pink));
+  background: linear-gradient(135deg, var(--hv-pink), var(--hv-purple));
   color: #fff;
 }
 
 .timeline {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   min-height: 0;
   border-top: 1px solid var(--hv-border);
   background:
-    linear-gradient(180deg, rgba(26, 18, 52, 0.68), rgba(4, 7, 10, 0.94)),
+    linear-gradient(180deg, rgba(29, 23, 43, 0.66), rgba(5, 7, 12, 0.94)),
     rgba(4, 7, 10, 0.9);
-  padding: 12px 18px 20px;
+  padding: 14px 20px 22px;
 }
 
 .timeline-head {
@@ -618,16 +701,16 @@ button {
   grid-template-columns: 78px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
-  min-height: 30px;
+  min-height: 32px;
   color: #8e97a6;
   font-size: 12px;
 }
 
 .clip-row {
   position: relative;
-  height: 28px;
+  height: 30px;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.055);
 }
 
@@ -646,8 +729,8 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(56, 200, 184, 0.32), transparent 48%),
-    linear-gradient(225deg, rgba(229, 77, 134, 0.42), transparent 54%),
+    linear-gradient(135deg, rgba(118, 216, 207, 0.22), transparent 48%),
+    linear-gradient(225deg, rgba(216, 107, 161, 0.36), transparent 54%),
     #111821;
 }
 
@@ -674,45 +757,45 @@ button {
 }
 
 .clip-1 {
-  background: rgba(229, 77, 134, 0.72);
+  background: rgba(216, 107, 161, 0.68);
 }
 
 .clip-2 {
-  background: rgba(240, 138, 54, 0.76);
+  background: rgba(155, 90, 208, 0.68);
 }
 
 .clip-3 {
-  background: rgba(167, 60, 176, 0.74);
+  background: rgba(194, 104, 179, 0.66);
 }
 
 .clip-4 {
-  background: rgba(56, 200, 184, 0.66);
+  background: rgba(118, 216, 207, 0.5);
 }
 
 .chat-feed {
   display: grid;
-  gap: 9px;
-  max-height: 260px;
+  gap: 12px;
+  max-height: 300px;
   overflow: auto;
   padding-right: 4px;
 }
 
 .chat-bubble {
-  border-radius: 12px;
-  padding: 10px 11px;
-  font-size: 12px;
-  line-height: 1.45;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .chat-bubble.assistant {
-  border: 1px solid rgba(229, 77, 134, 0.12);
-  background: rgba(229, 77, 134, 0.14);
+  border: 1px solid rgba(216, 107, 161, 0.12);
+  background: rgba(216, 107, 161, 0.12);
   color: #f5d9ed;
 }
 
 .chat-bubble.system {
-  border: 1px solid rgba(240, 138, 54, 0.12);
-  background: rgba(240, 138, 54, 0.12);
+  border: 1px solid rgba(230, 163, 95, 0.12);
+  background: rgba(230, 163, 95, 0.1);
   color: #ffe4a8;
 }
 
@@ -724,43 +807,43 @@ button {
 
 .quick-prompts {
   display: grid;
-  gap: 7px;
-  margin: 11px 0 0;
+  gap: 10px;
+  margin: 16px 0 0;
 }
 
 .quick-prompts button {
-  min-height: 34px;
-  border: 1px solid rgba(56, 200, 184, 0.18);
-  border-radius: 10px;
-  padding: 0 10px;
-  background: rgba(56, 200, 184, 0.08);
-  color: #d9fffb;
+  min-height: 40px;
+  border: 1px solid rgba(216, 107, 161, 0.16);
+  border-radius: 14px;
+  padding: 0 12px;
+  background: rgba(216, 107, 161, 0.08);
+  color: #f5ddec;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   text-align: left;
 }
 
 .quick-prompts button:hover {
-  border-color: rgba(56, 200, 184, 0.36);
-  background: rgba(56, 200, 184, 0.14);
+  border-color: rgba(216, 107, 161, 0.32);
+  background: rgba(216, 107, 161, 0.13);
 }
 
 .chat-input {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 40px;
-  gap: 8px;
-  margin: 12px 0 16px;
+  gap: 10px;
+  margin: 16px 0 20px;
 }
 
 .chat-input input {
-  height: 40px;
-  padding: 0 11px;
+  height: 44px;
+  padding: 0 13px;
 }
 
 .chat-input button {
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #fff, #f7e8ff);
   color: #080c10;
   cursor: pointer;
@@ -768,7 +851,7 @@ button {
 
 .upload-stack {
   display: grid;
-  gap: 9px;
+  gap: 11px;
 }
 
 .upload-box {
@@ -776,11 +859,11 @@ button {
   display: flex;
   align-items: center;
   gap: 9px;
-  min-height: 44px;
+  min-height: 48px;
   overflow: hidden;
-  border: 1px dashed rgba(167, 60, 176, 0.28);
-  border-radius: 12px;
-  padding: 0 11px;
+  border: 1px dashed rgba(216, 107, 161, 0.22);
+  border-radius: 15px;
+  padding: 0 13px;
   color: #d8dce4;
   font-size: 12px;
   cursor: pointer;
@@ -790,8 +873,8 @@ button {
 }
 
 .upload-box:hover {
-  border-color: rgba(56, 200, 184, 0.38);
-  background: rgba(56, 200, 184, 0.07);
+  border-color: rgba(216, 107, 161, 0.38);
+  background: rgba(216, 107, 161, 0.07);
 }
 
 .upload-box input {
@@ -1057,7 +1140,8 @@ button {
 }
 
 @media (max-width: 1180px) {
-  .studio-grid {
+  .studio-grid,
+  .studio-grid.assistant-collapsed {
     grid-template-columns: 280px minmax(0, 1fr);
   }
 
@@ -1065,6 +1149,19 @@ button {
     grid-column: 1 / -1;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     border-left: 0;
+  }
+
+  .right-panel.collapsed {
+    grid-template-columns: 1fr;
+    min-height: 120px;
+  }
+
+  .assistant-collapsed-card {
+    min-height: 72px;
+  }
+
+  .assistant-collapsed-card span {
+    writing-mode: initial;
   }
 }
 
@@ -1090,6 +1187,17 @@ button {
   .rail-nav {
     flex-direction: row;
     width: auto;
+    gap: 10px;
+  }
+
+  .rail-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rail-group-label {
+    display: none;
   }
 
   .nav-button {
@@ -1118,9 +1226,12 @@ button {
     width: 100%;
   }
 
-  .studio-grid {
+  .studio-grid,
+  .studio-grid.assistant-collapsed {
     grid-template-columns: 1fr;
     height: auto;
+    gap: 14px;
+    padding: 14px;
   }
 
   .canvas-zone {

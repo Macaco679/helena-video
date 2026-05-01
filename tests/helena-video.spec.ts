@@ -52,6 +52,16 @@ test("sidebar navigation opens workspace sections", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
 });
 
+test("assistant panel can collapse and expand", async ({ page }) => {
+  await gotoStudio(page);
+
+  await page.getByRole("button", { name: "Recolher Helena IA" }).click();
+  await expect(page.getByRole("button", { name: "Expandir Helena IA" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Expandir Helena IA" }).click();
+  await expect(page.getByPlaceholder("Pedir roteiro, legenda, corte...")).toBeVisible();
+});
+
 test("legacy r-prefixed studio routes are normalized", async ({ page }) => {
   await page.goto("/r/r/studio", { waitUntil: "domcontentloaded" });
 
