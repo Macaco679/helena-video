@@ -3,6 +3,7 @@ export type QualityProfile = "fast" | "pro" | "cinema";
 export type MotionIntensity = "subtle" | "balanced" | "aggressive";
 export type ContinuityMode = "none" | "style" | "character" | "character+style";
 export type AudioMode = "sync-from-upload" | "video-audio" | "no-audio";
+export type OutputResolution = "720p" | "1080p" | "4k";
 
 export type GenerationForm = {
   module: HelenaModule;
@@ -19,6 +20,10 @@ export type GenerationForm = {
   audioMode: AudioMode;
   aspectRatio: "9:16" | "16:9" | "1:1" | "4:5";
   fps: 24 | 30 | 60;
+  negativePrompt: string;
+  seed: number | "";
+  resolution: OutputResolution;
+  variationCount: 1 | 2 | 3 | 4;
 };
 
 export type ProviderStatus = {

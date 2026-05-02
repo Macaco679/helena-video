@@ -40,7 +40,7 @@ test("core controls update visible state", async ({ page }) => {
   await gotoStudio(page);
 
   await page.getByRole("button", { name: /AutoCut/ }).click();
-  await expect(page.getByText("Cria cortes sociais, highlights e variacoes curtas.")).toBeVisible();
+  await expect(page.getByText("Cria cortes sociais, highlights e variações curtas.")).toBeVisible();
 
   await page.getByRole("button", { name: "16:9" }).click();
   await expect(page.locator(".format-label")).toHaveText("Formato 16:9");
@@ -52,9 +52,9 @@ test("core controls update visible state", async ({ page }) => {
   await page.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(page.getByText("crie tres hooks")).toBeVisible();
 
-  await page.getByRole("button", { name: "Gere legendas dinamicas para Reels" }).click();
+  await page.getByRole("button", { name: "Gere legendas dinâmicas para Reels" }).click();
   await expect(
-    page.locator(".chat-bubble.user").filter({ hasText: "Gere legendas dinamicas para Reels" })
+    page.locator(".chat-bubble.user").filter({ hasText: "Gere legendas dinâmicas para Reels" })
   ).toBeVisible();
 
   await page.getByLabel("Zoom da timeline").fill("120");
@@ -88,9 +88,26 @@ test("advanced controls expand on demand", async ({ page }) => {
   await gotoStudio(page);
 
   await expect(page.getByLabel("Modelo")).toBeHidden();
-  await page.getByText("Controles avancados").click();
+  await page.getByText("Controles avançados").click();
   await expect(page.getByLabel("Modelo")).toBeVisible();
-  await expect(page.getByLabel("Duracao")).toBeVisible();
+  await expect(page.getByLabel("Duração")).toBeVisible();
+  await expect(page.getByLabel("Resolução")).toBeVisible();
+  await expect(page.getByLabel("Prompt negativo")).toBeVisible();
+});
+
+test("studio shows storyboard and blocks providers that are not ready", async ({ page }) => {
+  await gotoStudio(page);
+
+  await expect(page.getByRole("button", { name: /Gancho visual/ })).toBeVisible();
+  await expect(page.getByText("Job pronto para envio seguro.")).toBeVisible();
+
+  await page.getByText("Controles avançados").click();
+  await page.getByLabel("Modelo").selectOption("kling");
+
+  await expect(
+    page.getByText("Provider selecionado ainda precisa de chave ou ativação no backend.")
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: /Gerar/ })).toBeDisabled();
 });
 
 test("legacy r-prefixed studio routes are normalized", async ({ page }) => {
@@ -120,7 +137,7 @@ test("upload flow opens media adjustment modal", async ({ page }) => {
     )
   });
 
-  const dialog = page.getByRole("dialog", { name: "Ajuste de midia" });
+  const dialog = page.getByRole("dialog", { name: "Ajuste de mídia" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText("referencia.png", { exact: true })).toBeVisible();
   await page.getByLabel("Zoom do enquadramento").fill("1.5");

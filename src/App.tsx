@@ -1,5 +1,6 @@
 import {
   Aperture,
+  AlertTriangle,
   Bot,
   Captions,
   CheckCircle2,
@@ -10,7 +11,9 @@ import {
   Film,
   Gauge,
   Image,
+  KeyRound,
   Layers3,
+  ListChecks,
   MessageSquareText,
   Music2,
   Play,
@@ -18,10 +21,12 @@ import {
   Scissors,
   Settings2,
   Share2,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Upload,
   Wand2,
+  Workflow,
   X,
   ZoomIn
 } from "lucide-react";
@@ -30,12 +35,12 @@ import { hasSupabaseConfig } from "./lib/config";
 import { createHelenaJob, fetchHealth } from "./lib/helenaApi";
 import { providerMatrix } from "./lib/providers";
 import { checkSupabaseConnection } from "./lib/supabase";
-import type { ChatMessage, GenerationForm, HelenaModule } from "./lib/types";
+import type { ChatMessage, GenerationForm, HelenaModule, ProviderStatus } from "./lib/types";
 
 const initialForm: GenerationForm = {
   module: "module2",
   prompt:
-    "Crie um video vertical cinematografico para lancamento de produto, com cortes rapidos, camera tracking e textura premium.",
+    "Crie um video vertical cinematográfico para lançamento de produto, com cortes rápidos, câmera tracking e textura premium.",
   referenceNotes: "Manter logo e paleta Helena Video: preto, amarelo, magenta e violeta.",
   creativeProfile: "social-premium",
   preferredModel: "helena-native",
@@ -47,19 +52,23 @@ const initialForm: GenerationForm = {
   shotCount: 6,
   audioMode: "sync-from-upload",
   aspectRatio: "9:16",
-  fps: 30
+  fps: 30,
+  negativePrompt: "Evitar texto ilegível, mãos deformadas, cortes bruscos e flicker.",
+  seed: "",
+  resolution: "1080p",
+  variationCount: 2
 };
 
 const assistantSeed: ChatMessage[] = [
   {
     role: "assistant",
     content:
-      "Helena Video pronta para roteirizar, gerar, cortar, legendar e preparar publicacao. Envie briefing, midia ou escolha um preset."
+      "Helena Video pronta para roteirizar, gerar, cortar, legendar e preparar publicação. Envie briefing, mídia ou escolha um preset."
   },
   {
     role: "system",
     content:
-      "Modo seguro ativo: produto separado, sem tocar FelpaMusic/Vitrinno e sem deploy automatico."
+      "Modo seguro ativo: produto separado, sem tocar FelpaMusic/Vitrinno e sem deploy automático."
   }
 ];
 
@@ -74,28 +83,28 @@ const modules: Array<{
     id: "module1",
     label: "Transformar",
     icon: Wand2,
-    description: "Reprocessa video enviado com look, camera e acabamento.",
+    description: "Reprocessa video enviado com look, câmera e acabamento.",
     badge: "Video to video"
   },
   {
     id: "module2",
     label: "Storyboard",
     icon: Clapperboard,
-    description: "Gera sequencia de cenas a partir de prompt e referencias.",
+    description: "Gera sequência de cenas a partir de prompt e referências.",
     badge: "Prompt to video"
   },
   {
     id: "autocut",
     label: "AutoCut",
     icon: Scissors,
-    description: "Cria cortes sociais, highlights e variacoes curtas.",
+    description: "Cria cortes sociais, highlights e variações curtas.",
     badge: "Social cuts"
   }
 ];
 
 const quickPrompts = [
   "Corte os melhores trechos com foco no rosto",
-  "Gere legendas dinamicas para Reels",
+  "Gere legendas dinâmicas para Reels",
   "Sugira uma trilha moderna e cortes no beat"
 ];
 
@@ -104,6 +113,36 @@ const timelineTracks = [
   { name: "Audio", className: "clip-2" },
   { name: "Legendas", className: "clip-3" },
   { name: "Efeitos", className: "clip-4" }
+];
+
+const benchmarkCriteria = [
+  {
+    label: "Storyboard",
+    value: "shots editáveis",
+    detail: "Sora e Flow elevam o padrão com controle por cena, duração e narrativa."
+  },
+  {
+    label: "Controle",
+    value: "câmera + seed",
+    detail: "Runway e Kling dependem de parâmetros explícitos para consistência."
+  },
+  {
+    label: "Providers",
+    value: "roteamento",
+    detail: "Helena precisa comparar modelos sem acoplar o produto a um único motor."
+  },
+  {
+    label: "Entrega",
+    value: "QA + publicação",
+    detail: "O diferencial competitivo é sair do prompt e chegar ao pacote final."
+  }
+];
+
+const productionChecklist = [
+  "Prompt com intenção, câmera, ritmo e restrições",
+  "Referências e notas de continuidade documentadas",
+  "Provider pronto ou chave configurada no backend",
+  "Formato, duração, FPS, resolução e variações definidos"
 ];
 
 type UploadReview = {
@@ -131,8 +170,8 @@ const navItems: NavItem[] = [
 ];
 
 const navGroups: Array<{ label: string; items: NavItem[] }> = [
-  { label: "Edicao", items: navItems.filter((item) => ["Studio", "Legendas"].includes(item.label)) },
-  { label: "Midia", items: navItems.filter((item) => ["Assets", "Audio"].includes(item.label)) },
+  { label: "Edição", items: navItems.filter((item) => ["Studio", "Legendas"].includes(item.label)) },
+  { label: "Mídia", items: navItems.filter((item) => ["Assets", "Audio"].includes(item.label)) },
   { label: "Entrega", items: navItems.filter((item) => ["Publicar", "Ajustes"].includes(item.label)) }
 ];
 
@@ -153,7 +192,7 @@ const sectionPlaceholders: Record<
     title: "Assets",
     eyebrow: "Biblioteca",
     description:
-      "Organize videos, imagens, logos e referencias antes da geracao.",
+      "Organize videos, imagens, logos e referências antes da geração.",
     note: "Biblioteca pronta para preparar entradas de video, imagem e marca antes do envio aos fluxos Helena.",
     stats: [
       { label: "Slots", value: "3 refs" },
@@ -167,13 +206,13 @@ const sectionPlaceholders: Record<
         state: "Pronto"
       },
       {
-        title: "Referencias visuais",
+        title: "Referências visuais",
         description: "Mantem estilo, personagem, produto e paleta consistentes.",
         state: "Controle"
       },
       {
         title: "Kits de marca",
-        description: "Prepara logo, cores e notas para geracao ou edicao.",
+        description: "Prepara logo, cores e notas para geração ou edição.",
         state: "Marca"
       }
     ]
@@ -182,8 +221,8 @@ const sectionPlaceholders: Record<
     title: "Audio",
     eyebrow: "Som e trilha",
     description:
-      "Controle trilhas, vozes, stems, efeitos e sincronizacao com o corte.",
-    note: "Audio pronto para combinar upload, sugestao por IA e sincronizacao por beat dentro do job.",
+      "Controle trilhas, vozes, stems, efeitos e sincronização com o corte.",
+    note: "Áudio pronto para combinar upload, sugestão por IA e sincronização por beat dentro do job.",
     stats: [
       { label: "Entrada", value: "Trilha/voz" },
       { label: "Sync", value: "Beat cut" },
@@ -192,7 +231,7 @@ const sectionPlaceholders: Record<
     items: [
       {
         title: "Trilha principal",
-        description: "Define mood, duracao e ponto de entrada para o corte.",
+        description: "Define mood, duração e ponto de entrada para o corte.",
         state: "Sync"
       },
       {
@@ -212,7 +251,7 @@ const sectionPlaceholders: Record<
     eyebrow: "Texto na tela",
     description:
       "Gere, revise e exporte legendas em formatos sociais.",
-    note: "Legendas preparadas para transcricao, estilo visual e exportacao SRT/VTT por projeto.",
+    note: "Legendas preparadas para transcrição, estilo visual e exportação SRT/VTT por projeto.",
     stats: [
       { label: "Idioma", value: "PT/EN" },
       { label: "Estilo", value: "Social" },
@@ -220,7 +259,7 @@ const sectionPlaceholders: Record<
     ],
     items: [
       {
-        title: "Transcricao",
+        title: "Transcrição",
         description: "Cria texto base para fala, gancho e chamadas.",
         state: "Texto"
       },
@@ -240,8 +279,8 @@ const sectionPlaceholders: Record<
     title: "Publicar",
     eyebrow: "Distribuicao",
     description:
-      "Prepare variacoes, metadados e publicacao em canais sociais.",
-    note: "Publicacao pronta para empacotar render, copy, hashtags e checklist por canal.",
+      "Prepare variações, metadados e publicação em canais sociais.",
+    note: "Publicação pronta para empacotar render, copy, hashtags e checklist por canal.",
     stats: [
       { label: "Canais", value: "Reels/TikTok" },
       { label: "Pacote", value: "Render + copy" },
@@ -255,19 +294,19 @@ const sectionPlaceholders: Record<
       },
       {
         title: "Copy e hashtags",
-        description: "Gera variacoes de titulo, descricao e CTA.",
+        description: "Gera variações de título, descrição e CTA.",
         state: "IA"
       },
       {
         title: "Agendamento",
-        description: "Organiza entrega por plataforma e data de publicacao.",
+        description: "Organiza entrega por plataforma e data de publicação.",
         state: "Fila"
       }
     ]
   },
   Ajustes: {
     title: "Ajustes",
-    eyebrow: "Preferencias",
+    eyebrow: "Preferências",
     description:
       "Configure conta, provedores, presets e chaves do workspace.",
     note: "Ajustes mantem o produto separado e deixa claro quais provedores estao prontos, pendentes ou inativos.",
@@ -279,7 +318,7 @@ const sectionPlaceholders: Record<
     items: [
       {
         title: "Conta",
-        description: "Agrupa workspace, permissoes e preferencias de produto.",
+        description: "Agrupa workspace, permissões e preferências de produto.",
         state: "Base"
       },
       {
@@ -347,10 +386,22 @@ function App() {
     () => modules.find((module) => module.id === form.module)!,
     [form.module]
   );
+  const selectedProvider = useMemo(
+    () => providerMatrix.find((provider) => provider.id === form.preferredModel),
+    [form.preferredModel]
+  );
+  const storyboardShots = useMemo(() => buildStoryboardShots(form), [form]);
+  const validationIssues = useMemo(
+    () => validateGeneration(form, selectedProvider?.state, {
+      hasVideo: Boolean(videoFile)
+    }),
+    [form, selectedProvider?.state, videoFile]
+  );
+  const canSubmit = validationIssues.length === 0 && !isSubmitting;
 
   const activeSection = activeTool === "Studio" ? null : sectionPlaceholders[activeTool];
   const apiLabel =
-    apiStatus === "online" ? "online" : apiStatus === "blocked" ? "atencao" : "checando";
+    apiStatus === "online" ? "online" : apiStatus === "blocked" ? "atenção" : "checando";
 
   useEffect(() => {
     const syncRoute = () => {
@@ -422,7 +473,7 @@ function App() {
       {
         role: "assistant",
         content:
-          "Recebi. Vou transformar isso em direcao criativa, parametros de cena e checklist de producao dentro do job atual."
+          "Recebi. Vou transformar isso em direção criativa, parâmetros de cena e checklist de produção dentro do job atual."
       }
     ]);
     setChatInput("");
@@ -443,7 +494,7 @@ function App() {
           : null,
       mediaKind
     });
-    setStatusLine(`Midia carregada: ${file.name}`);
+    setStatusLine(`Mídia carregada: ${file.name}`);
   };
 
   const confirmUploadReview = () => {
@@ -484,6 +535,11 @@ function App() {
   };
 
   const submitJob = async () => {
+    if (validationIssues.length > 0) {
+      setStatusLine(`Revise antes de gerar: ${validationIssues[0]}`);
+      return;
+    }
+
     setIsSubmitting(true);
     setStatusLine("Enviando job para Helena API...");
 
@@ -568,7 +624,7 @@ function App() {
               <Download size={16} />
               Exportar
             </button>
-            <button className="primary-button" onClick={submitJob} disabled={isSubmitting}>
+            <button className="primary-button" onClick={submitJob} disabled={!canSubmit}>
               <Rocket size={16} />
               {isSubmitting ? "Gerando" : "Gerar"}
             </button>
@@ -601,7 +657,7 @@ function App() {
                 ))}
               </div>
               <aside className="section-inspector">
-                <span className="meta-label">Operacao</span>
+                <span className="meta-label">Operação</span>
                 <h3>Fila Helena</h3>
                 <div className="section-stats">
                   {activeSection.stats.map((stat) => (
@@ -622,7 +678,7 @@ function App() {
           <section className="left-panel">
             <div className="panel-title">
               <SlidersHorizontal size={18} />
-              <span>Parametros</span>
+              <span>Parâmetros</span>
             </div>
 
             <div className="module-switcher">
@@ -654,7 +710,7 @@ function App() {
             </label>
 
             <label className="field">
-              Notas de referencia
+              Notas de referência
               <textarea
                 value={form.referenceNotes}
                 onChange={(event) => updateForm("referenceNotes", event.target.value)}
@@ -663,7 +719,7 @@ function App() {
             </label>
 
             <details className="advanced-settings">
-              <summary>Controles avancados</summary>
+              <summary>Controles avançados</summary>
               <div className="field-grid">
                 <label className="field">
                   Modelo
@@ -695,7 +751,7 @@ function App() {
 
               <div className="field-grid">
                 <label className="field">
-                  Duracao
+                  Duração
                   <input
                     type="number"
                     min={4}
@@ -715,7 +771,156 @@ function App() {
                   />
                 </label>
               </div>
+
+              <div className="field-grid">
+                <label className="field">
+                  Câmera
+                  <select
+                    value={form.cameraPreset}
+                    onChange={(event) => updateForm("cameraPreset", event.target.value)}
+                  >
+                    <option value="tracking-push">Tracking push</option>
+                    <option value="slow-dolly">Slow dolly</option>
+                    <option value="handheld-realism">Handheld realism</option>
+                    <option value="locked-product">Locked product</option>
+                  </select>
+                </label>
+                <label className="field">
+                  Movimento
+                  <select
+                    value={form.motionIntensity}
+                    onChange={(event) =>
+                      updateForm("motionIntensity", event.target.value as GenerationForm["motionIntensity"])
+                    }
+                  >
+                    <option value="subtle">Sutil</option>
+                    <option value="balanced">Balanceado</option>
+                    <option value="aggressive">Agressivo</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="field-grid">
+                <label className="field">
+                  Continuidade
+                  <select
+                    value={form.continuityMode}
+                    onChange={(event) =>
+                      updateForm("continuityMode", event.target.value as GenerationForm["continuityMode"])
+                    }
+                  >
+                    <option value="none">Livre</option>
+                    <option value="style">Estilo</option>
+                    <option value="character">Personagem</option>
+                    <option value="character+style">Personagem + estilo</option>
+                  </select>
+                </label>
+                <label className="field">
+                  Áudio
+                  <select
+                    value={form.audioMode}
+                    onChange={(event) => updateForm("audioMode", event.target.value as GenerationForm["audioMode"])}
+                  >
+                    <option value="sync-from-upload">Sincronizar upload</option>
+                    <option value="video-audio">Áudio do vídeo</option>
+                    <option value="no-audio">Sem áudio</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="field-grid">
+                <label className="field">
+                  Resolução
+                  <select
+                    value={form.resolution}
+                    onChange={(event) => updateForm("resolution", event.target.value as GenerationForm["resolution"])}
+                  >
+                    <option value="720p">720p</option>
+                    <option value="1080p">1080p</option>
+                    <option value="4k">4K upscale</option>
+                  </select>
+                </label>
+                <label className="field">
+                  FPS
+                  <select
+                    value={form.fps}
+                    onChange={(event) => updateForm("fps", Number(event.target.value) as GenerationForm["fps"])}
+                  >
+                    <option value={24}>24</option>
+                    <option value={30}>30</option>
+                    <option value={60}>60</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="field-grid">
+                <label className="field">
+                  Variações
+                  <select
+                    value={form.variationCount}
+                    onChange={(event) =>
+                      updateForm("variationCount", Number(event.target.value) as GenerationForm["variationCount"])
+                    }
+                  >
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                    <option value={4}>4</option>
+                  </select>
+                </label>
+                <label className="field">
+                  Seed
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="auto"
+                    value={form.seed}
+                    onChange={(event) =>
+                      updateForm("seed", event.target.value === "" ? "" : Number(event.target.value))
+                    }
+                  />
+                </label>
+              </div>
+
+              <label className="field">
+                Prompt negativo
+                <textarea
+                  value={form.negativePrompt}
+                  onChange={(event) => updateForm("negativePrompt", event.target.value)}
+                  rows={3}
+                />
+              </label>
             </details>
+
+            <div className="quality-gate">
+              <div className="panel-title compact">
+                <ShieldCheck size={17} />
+                <span>Checklist de geração</span>
+              </div>
+              {validationIssues.length ? (
+                <ul className="issue-list">
+                  {validationIssues.map((issue) => (
+                    <li key={issue}>
+                      <AlertTriangle size={14} />
+                      {issue}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="quality-ready">
+                  <CheckCircle2 size={16} />
+                  Job pronto para envio seguro.
+                </div>
+              )}
+              <div className="quality-items">
+                {productionChecklist.map((item) => (
+                  <span key={item}>
+                    <ListChecks size={13} />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
           </section>
 
           <section className="canvas-zone">
@@ -765,6 +970,30 @@ function App() {
                 >
                   <Play size={22} fill="currentColor" />
                 </button>
+              </div>
+            </div>
+
+            <div className="storyboard-board" aria-label="Storyboard planejado">
+              <div className="storyboard-head">
+                <div>
+                  <span className="meta-label">Storyboard</span>
+                  <strong>{form.shotCount} cenas planejadas</strong>
+                </div>
+                <span>{form.durationSeconds}s · {form.resolution} · {form.variationCount} var.</span>
+              </div>
+              <div className="shot-list">
+                {storyboardShots.map((shot) => (
+                  <button
+                    className="shot-card"
+                    key={shot.index}
+                    onClick={() => setStatusLine(`Cena ${shot.index}: ${shot.goal}`)}
+                    type="button"
+                  >
+                    <small>{String(shot.index).padStart(2, "0")}</small>
+                    <strong>{shot.goal}</strong>
+                    <span>{shot.direction}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -898,8 +1127,8 @@ function App() {
                 <Layers3 size={18} />
                 <span>
                   {referenceFiles.length
-                    ? `${referenceFiles.length} referencias`
-                    : "Referencias visuais"}
+                    ? `${referenceFiles.length} referências`
+                    : "Referências visuais"}
                 </span>
                 <input
                   type="file"
@@ -926,9 +1155,30 @@ function App() {
                     <span>{provider.summary}</span>
                   </div>
                   <span className={`provider-state ${provider.state}`}>
-                    {provider.state === "ready" ? <CheckCircle2 size={14} /> : <Aperture size={14} />}
+                    {provider.state === "ready" ? (
+                      <CheckCircle2 size={14} />
+                    ) : provider.state === "needs-key" ? (
+                      <KeyRound size={14} />
+                    ) : (
+                      <Aperture size={14} />
+                    )}
                     {providerStateLabels[provider.state]}
                   </span>
+                </div>
+              ))}
+            </div>
+            <div className="benchmark-list">
+              <div className="panel-title compact">
+                <Workflow size={17} />
+                <span>Padrão competitivo</span>
+              </div>
+              {benchmarkCriteria.map((item) => (
+                <div className="benchmark-row" key={item.label}>
+                  <div>
+                    <strong>{item.label}</strong>
+                    <span>{item.detail}</span>
+                  </div>
+                  <em>{item.value}</em>
                 </div>
               ))}
             </div>
@@ -941,7 +1191,7 @@ function App() {
       {uploadReview ? (
         <div className="modal-backdrop" role="presentation">
           <section
-            aria-label="Ajuste de midia"
+            aria-label="Ajuste de mídia"
             aria-modal="true"
             className="upload-modal"
             role="dialog"
@@ -949,12 +1199,12 @@ function App() {
             <header className="modal-head">
               <div>
                 <span className="meta-label">
-                  {uploadReview.type === "reference" ? "Referencia visual" : uploadReview.type}
+                  {uploadReview.type === "reference" ? "Referência visual" : uploadReview.type}
                 </span>
                 <h2>Ajuste antes de editar</h2>
               </div>
               <button
-                aria-label="Fechar ajuste de midia"
+                aria-label="Fechar ajuste de mídia"
                 className="icon-button"
                 onClick={() => setUploadReview(null)}
               >
@@ -1027,7 +1277,61 @@ export default App;
 
 function supabaseLabel(status: "checking" | "online" | "invalid" | "missing") {
   if (status === "online") return "online";
-  if (status === "invalid") return "atencao";
+  if (status === "invalid") return "atenção";
   if (status === "missing") return "pendente";
   return "checando";
+}
+
+function buildStoryboardShots(form: GenerationForm) {
+  const goals = [
+    "Gancho visual",
+    "Produto em ação",
+    "Prova de textura",
+    "Movimento de câmera",
+    "Variação social",
+    "Fechamento CTA",
+    "Corte alternativo",
+    "Detalhe macro",
+    "Transição",
+    "Loop final",
+    "Reframe vertical",
+    "Backup edit"
+  ];
+  const secondsPerShot = Math.max(1, Math.round(form.durationSeconds / form.shotCount));
+
+  return Array.from({ length: form.shotCount }).map((_, index) => ({
+    index: index + 1,
+    goal: goals[index] ?? `Cena ${index + 1}`,
+    direction: `${secondsPerShot}s · ${form.cameraPreset} · ${form.motionIntensity}`
+  }));
+}
+
+function validateGeneration(
+  form: GenerationForm,
+  providerState: ProviderStatus["state"] | undefined,
+  files: { hasVideo: boolean }
+) {
+  const issues: string[] = [];
+
+  if (form.prompt.trim().length < 20) {
+    issues.push("Prompt precisa ter pelo menos 20 caracteres.");
+  }
+
+  if (["module1", "autocut"].includes(form.module) && !files.hasVideo) {
+    issues.push("Transformar e AutoCut precisam de um vídeo base.");
+  }
+
+  if (providerState && providerState !== "ready") {
+    issues.push("Provider selecionado ainda precisa de chave ou ativação no backend.");
+  }
+
+  if (form.durationSeconds < 4 || form.durationSeconds > 60) {
+    issues.push("Duração deve ficar entre 4 e 60 segundos.");
+  }
+
+  if (form.resolution === "4k" && form.qualityProfile === "fast") {
+    issues.push("4K não deve usar perfil Fast.");
+  }
+
+  return issues;
 }

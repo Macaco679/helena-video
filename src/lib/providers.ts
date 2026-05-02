@@ -18,6 +18,46 @@ export const providerMatrix: ProviderStatus[] = [
     requiredParams: ["prompt", "negativePrompt", "imageRefs", "aspectRatio", "duration", "seed", "cfg"]
   },
   {
+    id: "runway",
+    name: "Runway Gen-4",
+    category: "video",
+    state: "needs-key",
+    summary: "Referência para controle profissional, motion brush, edição e upscale.",
+    requiredParams: ["prompt", "imageRefs", "duration", "ratio", "seed", "qualityProfile"]
+  },
+  {
+    id: "sora",
+    name: "Sora",
+    category: "video",
+    state: "planned",
+    summary: "Referência para storyboard, remix, stitching, som e coerência de cena.",
+    requiredParams: ["prompt", "storyboard", "duration", "orientation", "audioIntent"]
+  },
+  {
+    id: "veo",
+    name: "Google Veo",
+    category: "video",
+    state: "needs-key",
+    summary: "Ponte para text/image-to-video, frames inicial/final e prompt rewriting.",
+    requiredParams: ["prompt", "imageRefs", "duration", "aspectRatio", "resolution"]
+  },
+  {
+    id: "luma",
+    name: "Luma Ray",
+    category: "video",
+    state: "needs-key",
+    summary: "Ponte para geração rápida, image-to-video e variações por API.",
+    requiredParams: ["prompt", "keyframes", "duration", "resolution", "loop"]
+  },
+  {
+    id: "pika",
+    name: "Pika",
+    category: "video",
+    state: "planned",
+    summary: "Referência para efeitos sociais, cenas rápidas e fluxos simples para creator.",
+    requiredParams: ["prompt", "imageRefs", "effect", "duration", "aspectRatio"]
+  },
+  {
     id: "wan",
     name: "Wan",
     category: "video",

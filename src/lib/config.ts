@@ -7,10 +7,8 @@ export const appConfig = {
   helenaApiUrl:
     import.meta.env.VITE_HELENA_VIDEO_API_URL ??
     "https://helena-anark-api.srv1153225.hstgr.cloud",
-  helenaApiKey: import.meta.env.VITE_HELENA_VIDEO_API_KEY ?? "",
   studioStorageUploadUrl:
-    import.meta.env.VITE_STUDIO_STORAGE_UPLOAD_URL ??
-    "https://studio.felpamusic.com.br/upload-media"
+    import.meta.env.VITE_STUDIO_STORAGE_UPLOAD_URL ?? ""
 };
 
 export const hasSupabaseConfig = Boolean(

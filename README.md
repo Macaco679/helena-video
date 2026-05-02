@@ -28,6 +28,14 @@ Canonical GitHub repository: `https://github.com/Macaco679/helena-video`.
 - Providers: UI contract for native Helena, Kling, Wan, Seedance, Hailuo, image generation, music/TTS, and publishing.
 - Supabase: initial schema in `supabase/migrations` for projects, assets, generation jobs, chat, and publishing.
 
+## Competitive quality bar
+
+The current product bar is documented in `docs/competitive-quality-bar.md`. Helena Video should behave like a real AI video studio/orchestrator: storyboard by shot, explicit generation parameters, provider routing, safe proxying, asset review, generation checklist, exportable payloads, and publication prep.
+
+Provider/API secrets must stay server-side. Do not add `VITE_*` private keys for providers; use the Vercel proxy, Supabase Edge Function, or VPS environment.
+
+If `VITE_STUDIO_STORAGE_UPLOAD_URL` points to a new production domain, add that domain to the `connect-src` directive in `vercel.json` before deploying.
+
 ## Safe deployment checklist
 
 1. Create a new Vercel project for Helena Video only.

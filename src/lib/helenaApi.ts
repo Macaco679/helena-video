@@ -19,9 +19,7 @@ const requestUrl = (path: string) =>
     : `${appConfig.helenaApiUrl}${path}`;
 
 export async function fetchHealth() {
-  const response = await fetch(requestUrl("/health"), {
-    headers: authHeaders()
-  });
+  const response = await fetchWithTimeout(requestUrl("/health"));
 
   if (!response.ok) {
     throw new Error(`Health failed: ${response.status}`);
@@ -31,9 +29,7 @@ export async function fetchHealth() {
 }
 
 export async function fetchCapabilities() {
-  const response = await fetch(requestUrl("/api/v1/capabilities"), {
-    headers: authHeaders()
-  });
+  const response = await fetchWithTimeout(requestUrl("/api/v1/capabilities"));
 
   if (!response.ok) {
     throw new Error(`Capabilities failed: ${response.status}`);
@@ -62,6 +58,12 @@ export async function createHelenaJob(
   body.set("duration_seconds", String(form.durationSeconds));
   body.set("shot_count", String(form.shotCount));
   body.set("audio_mode", form.audioMode);
+  body.set("aspect_ratio", form.aspectRatio);
+  body.set("fps", String(form.fps));
+  body.set("resolution", form.resolution);
+  body.set("variation_count", String(form.variationCount));
+  if (form.negativePrompt.trim()) body.set("negative_prompt", form.negativePrompt.trim());
+  if (form.seed !== "") body.set("seed", String(form.seed));
 
   if (files.video) {
     body.set("video_url", await uploadToStudioStorage(files.video, "helena-video"));
@@ -73,11 +75,10 @@ export async function createHelenaJob(
     body.set(`reference_image_${index + 1}_url`, await uploadToStudioStorage(file, "helena-reference"));
   }
 
-  const response = await fetch(requestUrl(endpointForModule(form.module)), {
+  const response = await fetchWithTimeout(requestUrl(endpointForModule(form.module)), {
     method: "POST",
-    headers: authHeaders(),
     body
-  });
+  }, 120_000);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -87,17 +88,32 @@ export async function createHelenaJob(
   return response.json();
 }
 
-function authHeaders() {
-  return appConfig.helenaApiKey
-    ? {
-        "X-API-Key": appConfig.helenaApiKey
-      }
-    : undefined;
-}
-
 function proxyPath(path: string) {
   if (path === "/health") return "/health";
   if (path === "/api/v1/capabilities") return "/capabilities";
   const jobMatch = path.match(/^\/api\/v1\/jobs\/([^/]+)$/);
   return jobMatch ? `/jobs/${jobMatch[1]}` : path;
+}
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = 15_000
+) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Helena API demorou demais para responder.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
