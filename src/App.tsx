@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clapperboard,
   Cloud,
+  CreditCard,
   Crop,
   Download,
   Film,
@@ -25,6 +26,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Upload,
+  Wallet,
   Wand2,
   Workflow,
   X,
@@ -147,7 +149,17 @@ type UploadReview = {
   mediaKind: "video" | "audio" | "image" | "file";
 };
 
-type NavLabel = "Studio" | "Assets" | "Audio" | "Legendas" | "Publicar" | "Ajustes";
+type NavLabel =
+  | "Studio"
+  | "Legendas"
+  | "Assets"
+  | "Audio"
+  | "Publicar"
+  | "Ajustes"
+  | "Auth"
+  | "Pagamentos"
+  | "Carteira"
+  | "Planos";
 
 type NavItem = {
   label: NavLabel;
@@ -157,22 +169,34 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Studio", path: "/studio", icon: Film },
+  { label: "Legendas", path: "/legendas", icon: Captions },
   { label: "Assets", path: "/assets", icon: Image },
   { label: "Audio", path: "/audio", icon: Music2 },
-  { label: "Legendas", path: "/legendas", icon: Captions },
   { label: "Publicar", path: "/publicar", icon: Share2 },
-  { label: "Ajustes", path: "/ajustes", icon: Settings2 }
+  { label: "Ajustes", path: "/ajustes", icon: Settings2 },
+  { label: "Auth", path: "/auth", icon: KeyRound },
+  { label: "Pagamentos", path: "/pagamentos", icon: CreditCard },
+  { label: "Carteira", path: "/carteira", icon: Wallet },
+  { label: "Planos", path: "/planos", icon: Sparkles }
 ];
 
 const navGroups: Array<{ label: string; items: NavItem[] }> = [
   { label: "Edição", items: navItems.filter((item) => ["Studio", "Legendas"].includes(item.label)) },
   { label: "Mídia", items: navItems.filter((item) => ["Assets", "Audio"].includes(item.label)) },
-  { label: "Entrega", items: navItems.filter((item) => ["Publicar", "Ajustes"].includes(item.label)) }
+  { label: "Entrega", items: navItems.filter((item) => ["Publicar", "Ajustes"].includes(item.label)) },
+  { label: "Conta", items: navItems.filter((item) => ["Planos", "Pagamentos", "Carteira"].includes(item.label)) }
 ];
 
-const routeByPath = new Map(navItems.map((item) => [item.path, item]));
+const routeByPath = new Map([
+  ...navItems.map((item) => [item.path, item] as const),
+  ["/", navItems[0]],
+  ["/login", navItems.find((item) => item.label === "Auth")!],
+  ["/billing", navItems.find((item) => item.label === "Pagamentos")!],
+  ["/wallet", navItems.find((item) => item.label === "Carteira")!],
+  ["/pricing", navItems.find((item) => item.label === "Planos")!],
+]);
 
-const sectionPlaceholders: Record<
+const sectionPlaceholders: Partial<Record<
   Exclude<NavLabel, "Studio">,
   {
     title: string;
@@ -182,7 +206,7 @@ const sectionPlaceholders: Record<
     stats: Array<{ label: string; value: string }>;
     items: Array<{ title: string; description: string; state: string }>;
   }
-> = {
+>> = {
   Assets: {
     title: "Assets",
     eyebrow: "Biblioteca",
@@ -403,7 +427,7 @@ function App() {
       const route = routeFromPath(window.location.pathname);
       setActiveTool(route.label);
 
-      if (window.location.pathname !== route.path) {
+      if (!routeByPath.has(window.location.pathname) && window.location.pathname !== route.path) {
         window.history.replaceState(null, "", route.path);
       }
     };
@@ -560,7 +584,15 @@ function App() {
   };
 
   return (
-    <main className="app-shell">
+    <main
+      className={
+        activeTool === "Auth"
+          ? "app-shell auth-layout"
+          : activeTool === "Studio"
+            ? "app-shell"
+            : "app-shell page-layout"
+      }
+    >
       <aside className="rail">
         <div className="brand-mark">
           <img
@@ -626,7 +658,15 @@ function App() {
           </div>
         </header>
 
-        {activeSection ? (
+        {activeTool !== "Studio" ? (
+          <WorkspacePage
+            apiStatus={apiStatus}
+            setStatusLine={setStatusLine}
+            statusLine={statusLine}
+            supabaseStatus={supabaseStatus}
+            tool={activeTool}
+          />
+        ) : activeSection ? (
           <section className="section-placeholder" aria-label={activeSection.title}>
             <div className="section-hero">
               <span className="meta-label">{activeSection.eyebrow}</span>
@@ -1269,6 +1309,807 @@ function App() {
 }
 
 export default App;
+
+type WorkspacePageProps = {
+  tool: Exclude<NavLabel, "Studio">;
+  statusLine: string;
+  setStatusLine: (value: string) => void;
+  supabaseStatus: "checking" | "online" | "invalid" | "missing";
+  apiStatus: "checking" | "online" | "blocked";
+};
+
+type WorkspaceMeta = {
+  title: string;
+  subtitle: string;
+  action: string;
+};
+
+const workspaceMeta: Record<Exclude<NavLabel, "Studio">, WorkspaceMeta> = {
+  Legendas: {
+    title: "Legendas",
+    subtitle: "Crie legendas com IA de alta precisao e publique em qualquer plataforma.",
+    action: "Gerar legendas agora"
+  },
+  Assets: {
+    title: "Assets",
+    subtitle: "Organize videos, imagens, logos e referencias antes de gerar.",
+    action: "Enviar midia"
+  },
+  Audio: {
+    title: "Audio",
+    subtitle: "Crie, ajuste e mixe o audio do seu projeto.",
+    action: "Gerar mix final"
+  },
+  Publicar: {
+    title: "Publicar",
+    subtitle: "Compartilhe seu video com o mundo.",
+    action: "Agendar publicacao"
+  },
+  Ajustes: {
+    title: "Ajustes",
+    subtitle: "Personalize. Conecte. Crie sem limites.",
+    action: "Logs do sistema"
+  },
+  Auth: {
+    title: "Entrar",
+    subtitle: "Acesse sua conta Helena Video",
+    action: "Continuar"
+  },
+  Pagamentos: {
+    title: "Faturamento",
+    subtitle: "Gerencie seus pagamentos, planos e metodos.",
+    action: "Historico de faturas"
+  },
+  Carteira: {
+    title: "Carteira",
+    subtitle: "Gerencie seus creditos, acompanhe transacoes e solicite saques.",
+    action: "Adicionar creditos"
+  },
+  Planos: {
+    title: "Planos",
+    subtitle: "Escolha o plano ideal para criar videos incriveis com IA.",
+    action: "Alterar plano"
+  }
+};
+
+function WorkspacePage({
+  tool,
+  statusLine,
+  setStatusLine,
+  supabaseStatus,
+  apiStatus
+}: WorkspacePageProps) {
+  if (tool === "Auth") {
+    return <AuthPage setStatusLine={setStatusLine} />;
+  }
+
+  const meta = workspaceMeta[tool];
+
+  return (
+    <section className={`workspace-page ${tool.toLowerCase()}-page`} aria-label={meta.title}>
+      <PageHeading
+        action={meta.action}
+        apiStatus={apiStatus}
+        setStatusLine={setStatusLine}
+        subtitle={meta.subtitle}
+        supabaseStatus={supabaseStatus}
+        title={meta.title}
+      />
+
+      {tool === "Legendas" ? (
+        <CaptionsPage setStatusLine={setStatusLine} />
+      ) : tool === "Assets" ? (
+        <AssetsPage setStatusLine={setStatusLine} />
+      ) : tool === "Audio" ? (
+        <AudioPage setStatusLine={setStatusLine} />
+      ) : tool === "Publicar" ? (
+        <PublishPage setStatusLine={setStatusLine} />
+      ) : tool === "Ajustes" ? (
+        <SettingsPage
+          apiStatus={apiStatus}
+          setStatusLine={setStatusLine}
+          supabaseStatus={supabaseStatus}
+        />
+      ) : tool === "Pagamentos" ? (
+        <BillingPage setStatusLine={setStatusLine} />
+      ) : tool === "Carteira" ? (
+        <WalletPage setStatusLine={setStatusLine} />
+      ) : (
+        <PlansPage setStatusLine={setStatusLine} />
+      )}
+
+      <div className="workspace-save-line">
+        <CheckCircle2 size={16} />
+        <span>{statusLine}</span>
+      </div>
+    </section>
+  );
+}
+
+function PageHeading({
+  title,
+  subtitle,
+  action,
+  setStatusLine,
+  supabaseStatus,
+  apiStatus
+}: {
+  title: string;
+  subtitle: string;
+  action: string;
+  setStatusLine: (value: string) => void;
+  supabaseStatus: "checking" | "online" | "invalid" | "missing";
+  apiStatus: "checking" | "online" | "blocked";
+}) {
+  const apiLabel = apiStatus === "online" ? "online" : apiStatus === "blocked" ? "atencao" : "checando";
+
+  return (
+    <header className="workspace-heading">
+      <div>
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
+      </div>
+      <div className="workspace-heading-actions">
+        <span className={supabaseStatus === "online" ? "status good" : "status warn"}>
+          <Cloud size={15} />
+          Dados {supabaseLabel(supabaseStatus)}
+        </span>
+        <span className={apiStatus === "online" ? "status good" : apiStatus === "blocked" ? "status warn" : "status"}>
+          <Gauge size={15} />
+          Motor IA {apiLabel}
+        </span>
+        <button className="ghost-button" onClick={() => setStatusLine(`${title}: acao secundaria aberta`)}>
+          <Download size={16} />
+          Exportar
+        </button>
+        <button className="primary-button" onClick={() => setStatusLine(`${title}: ${action}`)}>
+          <Sparkles size={16} />
+          {action}
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function AuthPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  return (
+    <section className="auth-page-shell" aria-label="Entrar">
+      <div className="auth-brand-panel">
+        <img alt="Helena Video" src="/helena-video-logo.jpeg" />
+        <h1>
+          <span>Crie videos.</span>
+          Comunique ideias.
+          <strong>Com o poder da IA.</strong>
+        </h1>
+        <p>A plataforma definitiva para criacao de videos com inteligencia artificial.</p>
+        <div className="auth-orbit">
+          <div className="auth-device">
+            <img alt="" src="/helena-video-logo-small.jpeg" />
+          </div>
+          <span className="auth-chip chip-a">AI</span>
+          <span className="auth-chip chip-b">T</span>
+          <span className="auth-chip chip-c">Audio</span>
+        </div>
+      </div>
+
+      <form
+        className="auth-card"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setStatusLine("Auth: tentativa de login preparada");
+        }}
+      >
+        <div>
+          <h2>Entrar</h2>
+          <p>Acesse sua conta Helena Video</p>
+        </div>
+        <label className="auth-field">
+          E-mail
+          <span>
+            <KeyRound size={18} />
+            <input aria-label="E-mail" placeholder="seu@email.com" type="email" />
+          </span>
+        </label>
+        <label className="auth-field">
+          Senha
+          <span>
+            <ShieldCheck size={18} />
+            <input aria-label="Senha" placeholder="**********" type="password" />
+          </span>
+        </label>
+        <div className="auth-row">
+          <label>
+            <input type="checkbox" />
+            Lembrar de mim
+          </label>
+          <button type="button" onClick={() => setStatusLine("Auth: recuperacao de senha")}>
+            Esqueci minha senha
+          </button>
+        </div>
+        <button className="primary-button auth-submit" type="submit">
+          Continuar
+          <Rocket size={16} />
+        </button>
+        <div className="auth-divider">
+          <span />
+          ou continue com
+          <span />
+        </div>
+        <div className="auth-socials">
+          {["Google", "Microsoft", "Apple"].map((provider) => (
+            <button key={provider} onClick={() => setStatusLine(`Auth: ${provider}`)} type="button">
+              {provider}
+            </button>
+          ))}
+        </div>
+        <p className="auth-create">
+          Nao tem uma conta? <button type="button">Criar conta</button>
+        </p>
+      </form>
+    </section>
+  );
+}
+
+function CaptionsPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const steps = [
+    ["01", "Transcricao", "Converta audio em texto com IA de alta precisao.", Captions],
+    ["02", "Estilo de legenda", "Defina aparencia, ritmo e area segura.", Sparkles],
+    ["03", "Exportacao SRT/VTT", "Exporte legendas otimizadas para plataformas externas.", Download]
+  ] as const;
+
+  return (
+    <div className="captions-layout">
+      <div className="process-strip">
+        {steps.map(([number, title, copy, Icon]) => (
+          <button
+            className="process-step"
+            key={title}
+            onClick={() => setStatusLine(`Legendas: ${title}`)}
+            type="button"
+          >
+            <small>{number}</small>
+            <Icon size={24} />
+            <strong>{title}</strong>
+            <span>{copy}</span>
+            <em>Pronto</em>
+          </button>
+        ))}
+      </div>
+
+      <section className="hv-card caption-preview">
+        <div className="card-title-row">
+          <h3>Previa da legenda</h3>
+          <div className="mini-controls">
+            <span>Safe area</span>
+            <span>16:9</span>
+          </div>
+        </div>
+        <div className="caption-media">
+          <button aria-label="Reproduzir previa" onClick={() => setStatusLine("Legendas: previa reproduzida")}>
+            <Play size={24} />
+          </button>
+          <p>
+            A <strong>inovacao</strong> nasce da coragem
+            <br />
+            de transformar ideias em realidade.
+          </p>
+        </div>
+        <div className="media-controls">
+          <Play size={17} />
+          <span>00:12 / 00:45</span>
+          <i />
+          <Captions size={17} />
+        </div>
+      </section>
+
+      <section className="hv-card caption-settings">
+        <h3>Configuracoes de legenda</h3>
+        {[
+          ["Idioma", "Portugues (PT)"],
+          ["Estilo", "Moderno Destaque"],
+          ["Area segura", "90% central"],
+          ["Peso da fonte", "Semibold"],
+          ["Formato de exportacao", "SRT, VTT"]
+        ].map(([label, value]) => (
+          <button key={label} onClick={() => setStatusLine(`Legendas: ${label}`)} type="button">
+            <span>{label}</span>
+            <strong>{value}</strong>
+          </button>
+        ))}
+      </section>
+
+      <aside className="side-stack">
+        <QueueCard title="Fila Helena" />
+        <section className="hv-card preset-card">
+          <div className="card-title-row">
+            <h3>Presets de estilo</h3>
+            <button type="button">Ver todos</button>
+          </div>
+          <div className="preset-grid">
+            {["Moderno Destaque", "Clean Neutro", "Cinema Enfase"].map((preset, index) => (
+              <button
+                className={index === 0 ? "preset-tile active" : "preset-tile"}
+                key={preset}
+                onClick={() => setStatusLine(`Legendas: ${preset}`)}
+                type="button"
+              >
+                <strong>Aa</strong>
+                <span>{preset}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      </aside>
+    </div>
+  );
+}
+
+function AssetsPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const assets = ["Video base", "Produto", "Logo", "Referencia", "B-roll", "Capa"];
+
+  return (
+    <div className="assets-layout">
+      <section className="hv-card upload-zone-large">
+        <Upload size={34} />
+        <h3>Enviar midia do projeto</h3>
+        <p>Videos, imagens, audios e referencias visuais em um unico painel.</p>
+        <button className="primary-button" onClick={() => setStatusLine("Assets: upload aberto")} type="button">
+          Enviar arquivos
+        </button>
+      </section>
+      <section className="asset-grid">
+        {assets.map((asset, index) => (
+          <button
+            className="asset-tile"
+            key={asset}
+            onClick={() => setStatusLine(`Assets: ${asset}`)}
+            type="button"
+          >
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <div />
+            <strong>{asset}</strong>
+            <small>{index % 2 === 0 ? "Pronto" : "Aguardando"}</small>
+          </button>
+        ))}
+      </section>
+      <aside className="side-stack">
+        <section className="hv-card">
+          <h3>Kits de marca</h3>
+          {["Helena Launch", "Produto premium", "Social cuts"].map((kit) => (
+            <button className="list-row" key={kit} onClick={() => setStatusLine(`Assets: kit ${kit}`)} type="button">
+              <Layers3 size={17} />
+              <span>{kit}</span>
+              <strong>Ativo</strong>
+            </button>
+          ))}
+        </section>
+        <section className="hv-card">
+          <h3>Referencias</h3>
+          <div className="reference-strip">
+            <div />
+            <div />
+            <div />
+            <button type="button">+12</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  );
+}
+
+function AudioPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const tracks = [
+    ["Trilha principal", "Amanhecer Inspirador", "-12.0 LUFS", Music2],
+    ["Voiceover", "Narracao Principal", "-16.5 LUFS", Bot],
+    ["Efeitos e stems", "Ambiencia + Impactos", "-14.0 LUFS", Layers3]
+  ] as const;
+
+  return (
+    <div className="audio-layout">
+      <div className="audio-cards">
+        {tracks.map(([label, title, loudness, Icon]) => (
+          <section className="hv-card audio-card" key={label}>
+            <div className="card-title-row">
+              <div>
+                <small>{label}</small>
+                <h3>{title}</h3>
+              </div>
+              <button aria-label={`Ouvir ${title}`} onClick={() => setStatusLine(`Audio: play ${title}`)} type="button">
+                <Play size={16} />
+              </button>
+            </div>
+            <div className="waveform">
+              <Icon size={24} />
+              {Array.from({ length: 44 }).map((_, index) => (
+                <i key={index} style={{ height: `${18 + ((index * 7) % 34)}px` }} />
+              ))}
+            </div>
+            <div className="audio-meta">
+              <span>2:18</span>
+              <span>{loudness}</span>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      <section className="hv-card audio-timeline">
+        <div className="timeline-toolbar">
+          <button type="button">16:9</button>
+          <button onClick={() => setStatusLine("Audio: timeline reproduzida")} type="button">
+            <Play size={17} />
+          </button>
+          <span>00:00:00</span>
+        </div>
+        {["Trilha principal", "Voiceover", "Efeitos", "Ambiencia", "Master"].map((track, index) => (
+          <div className="audio-track-row" key={track}>
+            <span>{track}</span>
+            <div className={`audio-clip clip-${index + 1}`}>
+              <i />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <aside className="side-stack">
+        <section className="hv-card mix-card">
+          <span className="meta-label">Operacao</span>
+          <h3>Mix final</h3>
+          <p>Estereo - 48kHz - 24bit - -14.0 LUFS</p>
+          <div className="mini-eq">
+            {Array.from({ length: 24 }).map((_, index) => (
+              <i key={index} />
+            ))}
+          </div>
+          <button className="ghost-button" onClick={() => setStatusLine("Audio: mix final ouvido")} type="button">
+            <Play size={15} />
+            Ouvir mix final
+          </button>
+        </section>
+        <section className="hv-card">
+          <h3>Fontes e uploads</h3>
+          {["Narracao_v1.wav", "Ambiencia_forest.wav"].map((file) => (
+            <button className="list-row" key={file} onClick={() => setStatusLine(`Audio: ${file}`)} type="button">
+              <Music2 size={17} />
+              <span>{file}</span>
+              <strong>WAV</strong>
+            </button>
+          ))}
+        </section>
+      </aside>
+    </div>
+  );
+}
+
+function PublishPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  return (
+    <div className="publish-layout">
+      <div className="publish-stepper">
+        {[
+          ["Criar", "Video pronto"],
+          ["Configurar", "Detalhes e agenda"],
+          ["Publicar", "Revisar e publicar"]
+        ].map(([title, copy], index) => (
+          <button
+            className={index <= 1 ? "active" : ""}
+            key={title}
+            onClick={() => setStatusLine(`Publicar: etapa ${title}`)}
+            type="button"
+          >
+            <strong>{index === 0 ? "✓" : index + 1}</strong>
+            <span>{title}</span>
+            <small>{copy}</small>
+          </button>
+        ))}
+      </div>
+
+      <section className="hv-card publish-video">
+        <h3>Seu video</h3>
+        <div className="publish-preview">
+          <button aria-label="Reproduzir video" onClick={() => setStatusLine("Publicar: preview")} type="button">
+            <Play size={24} />
+          </button>
+          <span>01:04</span>
+        </div>
+        <div className="publish-file">
+          <Music2 size={20} />
+          <div>
+            <strong>Campanha Helena Launch</strong>
+            <span>Cinematic Drive - 128 BPM - Beat cut</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="hv-card publish-copy">
+        <div className="card-title-row">
+          <h3>Copie e hashtags</h3>
+          <button onClick={() => setStatusLine("Publicar: sugestao IA")} type="button">Sugerir com IA</button>
+        </div>
+        <textarea
+          aria-label="Copy de publicacao"
+          defaultValue={"Helena Launch chegou.\n\nTecnologia, criatividade e performance em um so lugar.\nPronto para transformar ideias em resultados.\n\n#HelenaLaunch #VideoComIA #CinematicDrive #HelenaStudio"}
+        />
+        <div className="publish-destinations">
+          {["Instagram", "TikTok", "YouTube"].map((destination) => (
+            <button key={destination} onClick={() => setStatusLine(`Publicar: ${destination}`)} type="button">
+              {destination}
+              <span />
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <aside className="side-stack">
+        <section className="hv-card checklist-card">
+          <h3>Pronto para publicar</h3>
+          {["Video processado", "Copy adicionada", "Destinos conectados", "Agenda definida"].map((item) => (
+            <div key={item}>
+              <CheckCircle2 size={17} />
+              <span>{item}</span>
+            </div>
+          ))}
+        </section>
+        <section className="hv-card queue-card-small">
+          <h3>Fila de publicacoes</h3>
+          {["Novo produto", "Bastidores", "Customer Story"].map((item) => (
+            <button className="list-row" key={item} onClick={() => setStatusLine(`Publicar: ${item}`)} type="button">
+              <span>{item}</span>
+              <strong>Agendado</strong>
+            </button>
+          ))}
+        </section>
+      </aside>
+
+      <div className="publish-footer">
+        <span>Salvo automaticamente</span>
+        <button className="ghost-button" type="button">Salvar rascunho</button>
+        <button className="primary-button" onClick={() => setStatusLine("Publicar: publicacao agendada")} type="button">
+          Agendar publicacao
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SettingsPage({
+  setStatusLine,
+  supabaseStatus,
+  apiStatus
+}: {
+  setStatusLine: (value: string) => void;
+  supabaseStatus: "checking" | "online" | "invalid" | "missing";
+  apiStatus: "checking" | "online" | "blocked";
+}) {
+  const cards = [
+    ["Workspace", "Helena Studio", "Plano ativo", Settings2],
+    ["Modelos & APIs", "OpenAI, Google, ElevenLabs", apiStatus === "online" ? "Ativo" : "Revisar", Bot],
+    ["Editor", "1080p (16:9), 24 fps", "Padrao Helena", SlidersHorizontal],
+    ["APIs", "Conexoes externas", supabaseLabel(supabaseStatus), KeyRound],
+    ["Integracoes", "YouTube, TikTok, Drive", "Conectado", Workflow],
+    ["Preferencias", "Seu ambiente", "25 GB upload", ShieldCheck]
+  ] as const;
+
+  return (
+    <div className="settings-layout">
+      <div className="settings-grid">
+        {cards.map(([title, detail, state, Icon]) => (
+          <section className="hv-card setting-tile" key={title}>
+            <Icon size={28} />
+            <h3>{title}</h3>
+            <p>{detail}</p>
+            <strong>{state}</strong>
+            <button onClick={() => setStatusLine(`Ajustes: ${title}`)} type="button">Gerenciar</button>
+          </section>
+        ))}
+      </div>
+      <aside className="side-stack">
+        <section className="hv-card health-card">
+          <ShieldCheck size={30} />
+          <h3>Saude do sistema</h3>
+          <p>Tudo funcionando</p>
+          {["Servidores IA", "Fila de render", "Armazenamento", "APIs externas"].map((item) => (
+            <div key={item}>
+              <span>{item}</span>
+              <strong>Operacional</strong>
+            </div>
+          ))}
+        </section>
+        <section className="hv-card usage-card">
+          <h3>Uso do workspace</h3>
+          <div className="usage-ring">68%</div>
+          <p>341 GB / 500 GB usados</p>
+        </section>
+        <button className="helena-tip" onClick={() => setStatusLine("Ajustes: dica Helena aberta")} type="button">
+          <Sparkles size={24} />
+          <span>Dica Helena</span>
+          Configure padroes personalizados para agilizar seu fluxo.
+        </button>
+      </aside>
+    </div>
+  );
+}
+
+function BillingPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const stats = [
+    ["Gasto atual", "R$ 249,00", "Este mes", CreditCard],
+    ["Proximo vencimento", "15 Mai 2025", "Em 12 dias", ListChecks],
+    ["Creditos de render", "120 min", "Disponiveis", Gauge],
+    ["Metodo principal", "**** 4242", "Visa ** 4242", CreditCard]
+  ] as const;
+
+  return (
+    <div className="billing-layout">
+      <div className="billing-main">
+        <div className="stat-grid">
+          {stats.map(([label, value, copy, Icon]) => (
+            <section className="hv-card stat-card" key={label}>
+              <div>
+                <span>{label}</span>
+                <strong>{value}</strong>
+                <small>{copy}</small>
+              </div>
+              <Icon size={27} />
+            </section>
+          ))}
+        </div>
+        <section className="hv-card invoice-table">
+          <h3>Faturas</h3>
+          {["#INV-2025-0008", "#INV-2025-0007", "#INV-2025-0006", "#INV-2025-0005", "#INV-2024-0012"].map((invoice, index) => (
+            <button key={invoice} onClick={() => setStatusLine(`Faturamento: ${invoice}`)} type="button">
+              <span>{invoice}</span>
+              <span>{["15 Abr 2025", "15 Mar 2025", "15 Fev 2025", "15 Jan 2025", "15 Dez 2024"][index]}</span>
+              <strong>R$ 249,00</strong>
+              <em>Pago</em>
+              <Download size={15} />
+            </button>
+          ))}
+        </section>
+        <section className="hv-card saved-methods">
+          <h3>Metodos salvos</h3>
+          <button type="button">Visa **** 4242 <strong>Principal</strong></button>
+          <button type="button">Mastercard **** 8888</button>
+          <button onClick={() => setStatusLine("Faturamento: adicionar metodo")} type="button">+ Adicionar metodo</button>
+        </section>
+      </div>
+      <aside className="side-stack">
+        <section className="hv-card">
+          <h3>Endereco de cobranca</h3>
+          <p>Fernando Souza<br />Rua das Flores, 123<br />Sao Paulo, SP</p>
+        </section>
+        <section className="hv-card">
+          <h3>Acoes rapidas</h3>
+          {["Atualizar plano", "Ver uso e limites", "Notas fiscais", "Gerenciar assinatura"].map((item) => (
+            <button className="list-row" key={item} onClick={() => setStatusLine(`Faturamento: ${item}`)} type="button">
+              <span>{item}</span>
+              <strong>›</strong>
+            </button>
+          ))}
+        </section>
+      </aside>
+    </div>
+  );
+}
+
+function WalletPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  return (
+    <div className="wallet-layout">
+      <section className="wallet-balance hv-card">
+        <span>Saldo disponivel</span>
+        <strong>R$ 1.280,50</strong>
+        <p>Disponivel para saque</p>
+        <Wallet size={48} />
+      </section>
+      <section className="hv-card wallet-credits">
+        <span>Creditos</span>
+        <strong>8.450 <Sparkles size={34} /></strong>
+        <p>1 credito = 1 render ate 1 min</p>
+      </section>
+      <section className="hv-card wallet-actions">
+        <h3>Acoes rapidas</h3>
+        <button onClick={() => setStatusLine("Carteira: adicionar creditos")} type="button">Adicionar creditos</button>
+        <button onClick={() => setStatusLine("Carteira: solicitar saque")} type="button">Solicitar saque</button>
+      </section>
+      <section className="hv-card transactions-card">
+        <h3>Transacoes recentes</h3>
+        {["Renderizacao de video", "Compra de creditos", "Renderizacao de video", "Bonus de login diario"].map((item, index) => (
+          <button key={`${item}-${index}`} onClick={() => setStatusLine(`Carteira: ${item}`)} type="button">
+            <Play size={15} />
+            <span>{item}</span>
+            <strong>{index === 1 || index === 3 ? "+" : "-"} {index === 1 ? "10.000 creditos" : index === 3 ? "50 creditos" : `${60 + index * 30} creditos`}</strong>
+          </button>
+        ))}
+      </section>
+      <section className="hv-card withdrawals-card">
+        <h3>Historico de saques</h3>
+        {[850, 600, 450, 300].map((amount) => (
+          <button key={amount} onClick={() => setStatusLine(`Carteira: saque R$ ${amount}`)} type="button">
+            <Upload size={16} />
+            <span>Saque via PIX</span>
+            <strong>R$ {amount},00</strong>
+            <em>Concluido</em>
+          </button>
+        ))}
+      </section>
+      <div className="wallet-security">
+        <ShieldCheck size={18} />
+        Seus dados financeiros sao protegidos com criptografia de ponta a ponta.
+      </div>
+    </div>
+  );
+}
+
+function PlansPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const plans = [
+    ["Start", "R$ 39", "Para comecar a criar com IA.", ["5 videos por mes", "720p Export", "Recursos basicos de IA"]],
+    ["Pro", "R$ 89", "Para criadores que querem ir alem.", ["20 videos por mes", "1080p Export", "Recursos avancados de IA"]],
+    ["Studio", "R$ 169", "Para profissionais que exigem o melhor.", ["50 videos por mes", "4K Export", "Todos os recursos de IA"]],
+    ["Enterprise", "Sob consulta", "Para equipes e operacoes em escala.", ["Videos ilimitados", "4K Export", "IA personalizada"]]
+  ] as const;
+
+  return (
+    <div className="plans-layout">
+      <div className="plans-hero">
+        <Sparkles size={30} />
+        <h2>Planos</h2>
+        <p>Escolha o plano ideal para criar videos incriveis com IA.</p>
+        <div className="billing-toggle">
+          <button className="active" type="button">Mensal</button>
+          <button type="button">Anual <span>-20%</span></button>
+        </div>
+      </div>
+      <div className="plan-grid">
+        {plans.map(([name, price, copy, features]) => (
+          <section className={name === "Studio" ? "hv-card plan-card featured" : "hv-card plan-card"} key={name}>
+            <Play size={24} />
+            <h3>{name}</h3>
+            <p>{copy}</p>
+            <strong>{price}<small>{price.startsWith("R$") ? "/mes" : ""}</small></strong>
+            {features.map((feature) => (
+              <span key={feature}><CheckCircle2 size={15} />{feature}</span>
+            ))}
+            <button onClick={() => setStatusLine(`Planos: ${name}`)} type="button">
+              {name === "Studio" ? "Plano atual" : name === "Enterprise" ? "Falar com vendas" : "Comecar agora"}
+            </button>
+          </section>
+        ))}
+      </div>
+      <section className="hv-card plan-benefits">
+        {["Seguranca e privacidade", "Exportacao ilimitada", "IA sempre evoluindo", "Suporte real"].map((benefit) => (
+          <div key={benefit}>
+            <ShieldCheck size={26} />
+            <strong>{benefit}</strong>
+            <span>Recursos profissionais prontos para producao.</span>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function QueueCard({ title }: { title: string }) {
+  return (
+    <section className="hv-card queue-card">
+      <div className="card-title-row">
+        <h3>{title}</h3>
+        <span>3 tarefas</span>
+      </div>
+      {[
+        ["Campanha Helena Launch", "Processando", "63%"],
+        ["Produto em acao", "Aguardando", ""],
+        ["Review do produto", "Aguardando", ""]
+      ].map(([name, state, progress]) => (
+        <div className="queue-item" key={name}>
+          <span />
+          <div>
+            <strong>{name}</strong>
+            <small>SRT - PT</small>
+          </div>
+          <em>{state}</em>
+          {progress ? <i style={{ width: progress }} /> : null}
+        </div>
+      ))}
+    </section>
+  );
+}
 
 function supabaseLabel(status: "checking" | "online" | "invalid" | "missing") {
   if (status === "online") return "online";
