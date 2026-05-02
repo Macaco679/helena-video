@@ -63,12 +63,7 @@ const assistantSeed: ChatMessage[] = [
   {
     role: "assistant",
     content:
-      "Helena Video pronta para roteirizar, gerar, cortar, legendar e preparar publicação. Envie briefing, mídia ou escolha um preset."
-  },
-  {
-    role: "system",
-    content:
-      "Modo seguro ativo: produto separado, sem tocar FelpaMusic/Vitrinno e sem deploy automático."
+      "Pronta para montar roteiro, corte, legenda e pacote final."
   }
 ];
 
@@ -1278,7 +1273,7 @@ export default App;
 function supabaseLabel(status: "checking" | "online" | "invalid" | "missing") {
   if (status === "online") return "online";
   if (status === "invalid") return "atenção";
-  if (status === "missing") return "pendente";
+  if (status === "missing") return "pendentes";
   return "checando";
 }
 
