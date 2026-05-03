@@ -65,6 +65,42 @@
     {
       "source": "/ajustes",
       "destination": "/"
+    },
+    {
+      "source": "/auth",
+      "destination": "/"
+    },
+    {
+      "source": "/login",
+      "destination": "/"
+    },
+    {
+      "source": "/pagamentos",
+      "destination": "/"
+    },
+    {
+      "source": "/faturamento",
+      "destination": "/"
+    },
+    {
+      "source": "/billing",
+      "destination": "/"
+    },
+    {
+      "source": "/carteira",
+      "destination": "/"
+    },
+    {
+      "source": "/wallet",
+      "destination": "/"
+    },
+    {
+      "source": "/planos",
+      "destination": "/"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/"
     }
   ]
 }

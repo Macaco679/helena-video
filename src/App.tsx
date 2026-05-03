@@ -191,6 +191,7 @@ const routeByPath = new Map([
   ...navItems.map((item) => [item.path, item] as const),
   ["/", navItems[0]],
   ["/login", navItems.find((item) => item.label === "Auth")!],
+  ["/faturamento", navItems.find((item) => item.label === "Pagamentos")!],
   ["/billing", navItems.find((item) => item.label === "Pagamentos")!],
   ["/wallet", navItems.find((item) => item.label === "Carteira")!],
   ["/pricing", navItems.find((item) => item.label === "Planos")!],
