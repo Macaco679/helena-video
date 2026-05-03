@@ -1685,7 +1685,7 @@ function AssetsPage({ setStatusLine }: { setStatusLine: (value: string) => void 
     <div className="assets-layout">
       <section className="hv-card upload-zone-large">
         <Upload size={34} />
-        <h3>Enviar midia do projeto</h3>
+        <h3>Uploads do projeto</h3>
         <p>Videos, imagens, audios e referencias visuais em um unico painel.</p>
         <button className="primary-button" onClick={() => setStatusLine("Assets: upload aberto")} type="button">
           Enviar arquivos

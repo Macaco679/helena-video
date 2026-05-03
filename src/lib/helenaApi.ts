@@ -48,6 +48,9 @@ export async function createHelenaJob(
 ): Promise<HelenaJobResponse> {
   const body = new FormData();
   body.set("prompt", form.prompt);
+  body.set("job_type", form.module);
+  body.set("mode", form.module);
+  body.set("module", form.module);
   body.set("reference_notes", form.referenceNotes);
   body.set("creative_profile", form.creativeProfile);
   body.set("preferred_model", form.preferredModel);
@@ -65,17 +68,27 @@ export async function createHelenaJob(
   if (form.negativePrompt.trim()) body.set("negative_prompt", form.negativePrompt.trim());
   if (form.seed !== "") body.set("seed", String(form.seed));
 
+  const hasLocalFiles = Boolean(files.video || files.audio || (files.references ?? []).length);
+  const shouldUploadToStorage = Boolean(appConfig.studioStorageUploadUrl);
+
   if (files.video) {
-    body.set("video_url", await uploadToStudioStorage(files.video, "helena-video"));
+    if (shouldUploadToStorage) body.set("video_url", await uploadToStudioStorage(files.video, "helena-video"));
+    else body.set("video", files.video);
   }
   if (files.audio) {
-    body.set("audio_url", await uploadToStudioStorage(files.audio, "helena-audio"));
+    if (shouldUploadToStorage) body.set("audio_url", await uploadToStudioStorage(files.audio, "helena-audio"));
+    else body.set("audio", files.audio);
   }
   for (const [index, file] of (files.references ?? []).slice(0, 3).entries()) {
-    body.set(`reference_image_${index + 1}_url`, await uploadToStudioStorage(file, "helena-reference"));
+    if (shouldUploadToStorage) body.set(`reference_image_${index + 1}_url`, await uploadToStudioStorage(file, "helena-reference"));
+    else body.set(`reference_image_${index + 1}`, file);
   }
 
-  const response = await fetchWithTimeout(requestUrl(endpointForModule(form.module)), {
+  const jobUrl = appConfig.helenaN8nJobWebhookUrl && !hasLocalFiles
+    ? appConfig.helenaN8nJobWebhookUrl
+    : requestUrl(endpointForModule(form.module));
+
+  const response = await fetchWithTimeout(jobUrl, {
     method: "POST",
     body
   }, 120_000);
