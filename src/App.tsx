@@ -1472,6 +1472,8 @@ function PageHeading({
 }
 
 function AuthPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const [mode, setMode] = useState<"login" | "create">("login");
+
   return (
     <section className="auth-page-shell" aria-label="Entrar">
       <div className="auth-brand-panel">
@@ -1496,13 +1498,22 @@ function AuthPage({ setStatusLine }: { setStatusLine: (value: string) => void })
         className="auth-card"
         onSubmit={(event) => {
           event.preventDefault();
-          setStatusLine("Auth: tentativa de login preparada");
+          setStatusLine(mode === "login" ? "Auth: tentativa de login preparada" : "Auth: criacao de conta preparada");
         }}
       >
         <div>
-          <h2>Entrar</h2>
-          <p>Acesse sua conta Helena Video</p>
+          <h2>{mode === "login" ? "Entrar" : "Criar conta"}</h2>
+          <p>{mode === "login" ? "Acesse sua conta Helena Video" : "Prepare seu acesso Helena Video"}</p>
         </div>
+        {mode === "create" ? (
+          <label className="auth-field">
+            Nome
+            <span>
+              <Sparkles size={18} />
+              <input aria-label="Nome" placeholder="Seu nome" type="text" />
+            </span>
+          </label>
+        ) : null}
         <label className="auth-field">
           E-mail
           <span>
@@ -1527,7 +1538,7 @@ function AuthPage({ setStatusLine }: { setStatusLine: (value: string) => void })
           </button>
         </div>
         <button className="primary-button auth-submit" type="submit">
-          Continuar
+          {mode === "login" ? "Continuar" : "Criar conta"}
           <Rocket size={16} />
         </button>
         <div className="auth-divider">
@@ -1543,7 +1554,17 @@ function AuthPage({ setStatusLine }: { setStatusLine: (value: string) => void })
           ))}
         </div>
         <p className="auth-create">
-          Nao tem uma conta? <button type="button">Criar conta</button>
+          {mode === "login" ? "Nao tem uma conta?" : "Ja tem uma conta?"}{" "}
+          <button
+            type="button"
+            onClick={() => {
+              const nextMode = mode === "login" ? "create" : "login";
+              setMode(nextMode);
+              setStatusLine(nextMode === "login" ? "Auth: login selecionado" : "Auth: criacao de conta selecionada");
+            }}
+          >
+            {mode === "login" ? "Criar conta" : "Entrar"}
+          </button>
         </p>
       </form>
     </section>
@@ -1551,6 +1572,7 @@ function AuthPage({ setStatusLine }: { setStatusLine: (value: string) => void })
 }
 
 function CaptionsPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const [showAllPresets, setShowAllPresets] = useState(false);
   const steps = [
     ["01", "Transcricao", "Converta audio em texto com IA de alta precisao.", Captions],
     ["02", "Estilo de legenda", "Defina aparencia, ritmo e area segura.", Sparkles],
@@ -1623,10 +1645,21 @@ function CaptionsPage({ setStatusLine }: { setStatusLine: (value: string) => voi
         <section className="hv-card preset-card">
           <div className="card-title-row">
             <h3>Presets de estilo</h3>
-            <button type="button">Ver todos</button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAllPresets((current) => !current);
+                setStatusLine(showAllPresets ? "Legendas: presets principais" : "Legendas: todos os presets");
+              }}
+            >
+              {showAllPresets ? "Ver menos" : "Ver todos"}
+            </button>
           </div>
           <div className="preset-grid">
-            {["Moderno Destaque", "Clean Neutro", "Cinema Enfase"].map((preset, index) => (
+            {(showAllPresets
+              ? ["Moderno Destaque", "Clean Neutro", "Cinema Enfase", "Karaoke Social", "Legenda Podcast", "Minimal Premium"]
+              : ["Moderno Destaque", "Clean Neutro", "Cinema Enfase"]
+            ).map((preset, index) => (
               <button
                 className={index === 0 ? "preset-tile active" : "preset-tile"}
                 key={preset}
@@ -1645,6 +1678,7 @@ function CaptionsPage({ setStatusLine }: { setStatusLine: (value: string) => voi
 }
 
 function AssetsPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const [showAllReferences, setShowAllReferences] = useState(false);
   const assets = ["Video base", "Produto", "Logo", "Referencia", "B-roll", "Capa"];
 
   return (
@@ -1689,7 +1723,16 @@ function AssetsPage({ setStatusLine }: { setStatusLine: (value: string) => void 
             <div />
             <div />
             <div />
-            <button type="button">+12</button>
+            {showAllReferences ? Array.from({ length: 12 }).map((_, index) => <div key={`extra-reference-${index}`} />) : null}
+            <button
+              type="button"
+              onClick={() => {
+                setShowAllReferences((current) => !current);
+                setStatusLine(showAllReferences ? "Assets: referencias reduzidas" : "Assets: 12 referencias adicionais abertas");
+              }}
+            >
+              {showAllReferences ? "Menos" : "+12"}
+            </button>
           </div>
         </section>
       </aside>
@@ -1698,6 +1741,7 @@ function AssetsPage({ setStatusLine }: { setStatusLine: (value: string) => void 
 }
 
 function AudioPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const tracks = [
     ["Trilha principal", "Amanhecer Inspirador", "-12.0 LUFS", Music2],
     ["Voiceover", "Narracao Principal", "-16.5 LUFS", Bot],
@@ -1734,8 +1778,17 @@ function AudioPage({ setStatusLine }: { setStatusLine: (value: string) => void }
 
       <section className="hv-card audio-timeline">
         <div className="timeline-toolbar">
-          <button type="button">16:9</button>
-          <button onClick={() => setStatusLine("Audio: timeline reproduzida")} type="button">
+          <button
+            type="button"
+            onClick={() => {
+              const nextAspect = aspectRatio === "16:9" ? "9:16" : "16:9";
+              setAspectRatio(nextAspect);
+              setStatusLine(`Audio: formato ${nextAspect} selecionado`);
+            }}
+          >
+            {aspectRatio}
+          </button>
+          <button aria-label="Reproduzir timeline de audio" onClick={() => setStatusLine("Audio: timeline reproduzida")} type="button">
             <Play size={17} />
           </button>
           <span>00:00:00</span>
@@ -1861,7 +1914,7 @@ function PublishPage({ setStatusLine }: { setStatusLine: (value: string) => void
 
       <div className="publish-footer">
         <span>Salvo automaticamente</span>
-        <button className="ghost-button" type="button">Salvar rascunho</button>
+        <button className="ghost-button" onClick={() => setStatusLine("Publicar: rascunho salvo")} type="button">Salvar rascunho</button>
         <button className="primary-button" onClick={() => setStatusLine("Publicar: publicacao agendada")} type="button">
           Agendar publicacao
         </button>
@@ -1929,6 +1982,7 @@ function SettingsPage({
 }
 
 function BillingPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const [selectedMethod, setSelectedMethod] = useState("Visa **** 4242");
   const stats = [
     ["Gasto atual", "R$ 249,00", "Este mes", CreditCard],
     ["Proximo vencimento", "15 Mai 2025", "Em 12 dias", ListChecks],
@@ -1965,8 +2019,18 @@ function BillingPage({ setStatusLine }: { setStatusLine: (value: string) => void
         </section>
         <section className="hv-card saved-methods">
           <h3>Metodos salvos</h3>
-          <button type="button">Visa **** 4242 <strong>Principal</strong></button>
-          <button type="button">Mastercard **** 8888</button>
+          {["Visa **** 4242", "Mastercard **** 8888"].map((method) => (
+            <button
+              key={method}
+              type="button"
+              onClick={() => {
+                setSelectedMethod(method);
+                setStatusLine(`Faturamento: metodo ${method} selecionado`);
+              }}
+            >
+              {method} {selectedMethod === method ? <strong>Principal</strong> : null}
+            </button>
+          ))}
           <button onClick={() => setStatusLine("Faturamento: adicionar metodo")} type="button">+ Adicionar metodo</button>
         </section>
       </div>
@@ -2038,6 +2102,7 @@ function WalletPage({ setStatusLine }: { setStatusLine: (value: string) => void 
 }
 
 function PlansPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  const [billingCycle, setBillingCycle] = useState<"mensal" | "anual">("mensal");
   const plans = [
     ["Start", "R$ 39", "Para comecar a criar com IA.", ["5 videos por mes", "720p Export", "Recursos basicos de IA"]],
     ["Pro", "R$ 89", "Para criadores que querem ir alem.", ["20 videos por mes", "1080p Export", "Recursos avancados de IA"]],
@@ -2052,8 +2117,26 @@ function PlansPage({ setStatusLine }: { setStatusLine: (value: string) => void }
         <h2>Planos</h2>
         <p>Escolha o plano ideal para criar videos incriveis com IA.</p>
         <div className="billing-toggle">
-          <button className="active" type="button">Mensal</button>
-          <button type="button">Anual <span>-20%</span></button>
+          <button
+            className={billingCycle === "mensal" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setBillingCycle("mensal");
+              setStatusLine("Planos: cobranca mensal selecionada");
+            }}
+          >
+            Mensal
+          </button>
+          <button
+            className={billingCycle === "anual" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setBillingCycle("anual");
+              setStatusLine("Planos: cobranca anual selecionada");
+            }}
+          >
+            Anual <span>-20%</span>
+          </button>
         </div>
       </div>
       <div className="plan-grid">
