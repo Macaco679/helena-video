@@ -59,7 +59,7 @@ select:focus-visible {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 124px minmax(0, 1fr);
+  grid-template-columns: 180px minmax(0, 1fr);
   height: 100vh;
   min-height: 100vh;
   overflow: hidden;
@@ -69,23 +69,23 @@ select:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 14px;
+  gap: 24px;
   border-right: 1px solid var(--hv-border);
   background:
     linear-gradient(180deg, rgba(16, 17, 25, 0.96), rgba(7, 8, 13, 0.96)),
     rgba(8, 10, 15, 0.96);
-  padding: 14px 10px;
+  padding: 24px 20px;
 }
 
 .brand-mark {
   align-self: center;
-  flex: 0 0 52px;
-  width: 52px;
-  height: 52px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: var(--hv-radius-md);
+  flex: 0 0 116px;
+  width: 126px;
+  height: 116px;
+  border: 0;
+  border-radius: 0;
   overflow: hidden;
-  background: #04090b;
+  background: transparent;
 }
 
 .brand-mark img,
@@ -98,7 +98,7 @@ select:focus-visible {
 .rail-nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
   width: 100%;
 }
 
@@ -108,6 +108,7 @@ select:focus-visible {
 }
 
 .rail-group-label {
+  display: none;
   padding: 0 8px;
   color: #7f8794;
   font-size: 10px;
@@ -120,10 +121,10 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
-  min-height: 38px;
-  border-radius: var(--hv-radius-md);
-  padding: 0 9px;
+  gap: 14px;
+  min-height: 52px;
+  border-radius: 14px;
+  padding: 0 14px;
   background: transparent;
   color: #c4c9d2;
   cursor: pointer;
@@ -134,10 +135,10 @@ select:focus-visible {
 }
 
 .nav-button span {
-  max-width: 74px;
+  max-width: 96px;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.1;
   white-space: nowrap;
@@ -169,8 +170,8 @@ select:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  min-height: 72px;
-  padding: 14px 22px;
+  min-height: 88px;
+  padding: 18px 28px;
   border-bottom: 1px solid var(--hv-border);
   background:
     linear-gradient(90deg, rgba(11, 12, 18, 0.97), rgba(18, 17, 27, 0.94)),
@@ -261,9 +262,9 @@ select:focus-visible {
 
 .studio-grid {
   display: grid;
-  grid-template-columns: 286px minmax(520px, 1fr) 302px;
-  gap: 12px;
-  height: calc(100vh - 72px);
+  grid-template-columns: 300px minmax(540px, 1fr) 392px;
+  gap: 14px;
+  height: calc(100vh - 88px);
   min-height: 0;
   flex: 1;
   padding: 12px;
@@ -272,7 +273,7 @@ select:focus-visible {
 }
 
 .studio-grid.assistant-collapsed {
-  grid-template-columns: 286px minmax(520px, 1fr) 70px;
+  grid-template-columns: 300px minmax(540px, 1fr) 70px;
 }
 
 .left-panel,
