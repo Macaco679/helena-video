@@ -3045,3 +3045,183 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* Print-matching refinements: Helena 2026 reference screens */
+.topbar > div:first-child {
+  visibility: hidden;
+}
+
+.topbar {
+  justify-content: flex-end;
+  padding-inline: 28px;
+}
+
+.studio-grid {
+  grid-template-columns: 300px minmax(620px, 1fr) 392px;
+  gap: 16px;
+  padding: 12px 22px 12px 20px;
+  background:
+    radial-gradient(circle at 52% 18%, rgba(206, 63, 208, 0.1), transparent 32rem),
+    #05070d;
+}
+
+.left-panel,
+.right-panel,
+.project-panel,
+.timeline-card,
+.hv-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(15, 21, 35, 0.82), rgba(8, 10, 18, 0.92));
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.panel-title span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.module-card {
+  min-height: 102px;
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(20, 27, 42, 0.76), rgba(11, 13, 23, 0.86)),
+    rgba(255, 255, 255, 0.03);
+}
+
+.module-card.selected,
+.module-card:hover {
+  border-color: rgba(227, 75, 225, 0.42);
+  background:
+    radial-gradient(circle at 8% 10%, rgba(227, 75, 225, 0.18), transparent 68%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.preview-stage {
+  padding: 0 20px 20px;
+}
+
+.preview-phone {
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 1.542 / 1;
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04)),
+    url("/reference-assets/helena/studio-preview.jpg") center / cover no-repeat;
+  box-shadow: 0 0 44px rgba(223, 64, 216, 0.18);
+}
+
+.preview-phone::before,
+.preview-topline,
+.preview-logo,
+.preview-copy,
+.preview-play,
+.preview-phone .play-button {
+  display: none;
+}
+
+.storyboard-board {
+  padding: 18px 26px 16px;
+}
+
+.shot-list {
+  gap: 8px;
+}
+
+.shot-card {
+  min-height: 148px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(6, 8, 15, 0.12), rgba(6, 8, 15, 0.66)),
+    url("/reference-assets/helena/story-01.jpg") center / cover no-repeat;
+}
+
+.shot-card:nth-child(2) {
+  background:
+    linear-gradient(180deg, rgba(6, 8, 15, 0.12), rgba(6, 8, 15, 0.66)),
+    url("/reference-assets/helena/story-02.jpg") center / cover no-repeat;
+}
+
+.shot-card:nth-child(3) {
+  background:
+    linear-gradient(180deg, rgba(6, 8, 15, 0.12), rgba(6, 8, 15, 0.66)),
+    url("/reference-assets/helena/story-03.jpg") center / cover no-repeat;
+}
+
+.right-panel .chat-log,
+.right-panel .tools-list {
+  border-radius: 16px;
+}
+
+.chat-bubble.assistant {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(210, 70, 214, 0.22), transparent 56%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.captions-layout {
+  grid-template-columns: minmax(0, 1fr) 368px;
+  gap: 20px;
+}
+
+.process-strip {
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(15, 21, 35, 0.82), rgba(8, 10, 18, 0.92));
+}
+
+.caption-media {
+  min-height: 318px;
+  border-radius: 14px;
+  background: url("/reference-assets/helena/captions-preview.jpg") center / cover no-repeat;
+}
+
+.caption-media::before {
+  display: none;
+}
+
+.caption-media p {
+  right: 17%;
+  bottom: 30px;
+  left: 17%;
+}
+
+.publish-preview {
+  min-height: 248px;
+  border-radius: 14px;
+  background: url("/reference-assets/helena/publish-preview.jpg") center / cover no-repeat;
+}
+
+.publish-preview::before {
+  display: none;
+}
+
+.audio-timeline {
+  background:
+    linear-gradient(145deg, rgba(15, 21, 35, 0.28), rgba(8, 10, 18, 0.88)),
+    url("/reference-assets/helena/audio-timeline.jpg") center / cover no-repeat;
+}
+
+.audio-timeline .track-lanes {
+  opacity: 0.08;
+}
+
+.publish-layout,
+.audio-layout,
+.settings-layout,
+.billing-layout,
+.wallet-layout,
+.plans-layout {
+  gap: 20px;
+}
+
+.workspace-page > .workspace-heading {
+  margin-bottom: 26px;
+}
+
+.workspace-heading h2 {
+  font-size: clamp(2rem, 3.3vw, 3rem);
+  letter-spacing: -0.02em;
+}
