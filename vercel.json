@@ -101,6 +101,50 @@
     {
       "source": "/pricing",
       "destination": "/"
+    },
+    {
+      "source": "/minha-conta",
+      "destination": "/"
+    },
+    {
+      "source": "/account",
+      "destination": "/"
+    },
+    {
+      "source": "/workspace",
+      "destination": "/"
+    },
+    {
+      "source": "/team",
+      "destination": "/"
+    },
+    {
+      "source": "/integracoes",
+      "destination": "/"
+    },
+    {
+      "source": "/api",
+      "destination": "/"
+    },
+    {
+      "source": "/chat",
+      "destination": "/"
+    },
+    {
+      "source": "/ia",
+      "destination": "/"
+    },
+    {
+      "source": "/projetos",
+      "destination": "/"
+    },
+    {
+      "source": "/projects",
+      "destination": "/"
+    },
+    {
+      "source": "/templates",
+      "destination": "/"
     }
   ]
 }
