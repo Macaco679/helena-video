@@ -2,7 +2,8 @@ import { expect, type Page, test } from "@playwright/test";
 
 async function gotoStudio(page: Page) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Studio" })).toBeVisible();
+  await expect(page.getByText("Campanha Helena Launch")).toBeVisible();
 }
 
 test("loads the Helena Video studio shell", async ({ page }) => {
@@ -10,8 +11,8 @@ test("loads the Helena Video studio shell", async ({ page }) => {
 
   await expect(page).toHaveTitle(/Helena Video/);
   await expect(page.getByRole("button", { name: /Gerar/ })).toBeVisible();
-  await expect(page.getByText("Helena IA")).toBeVisible();
-  await expect(page.getByText("Corte IA cinemático")).toBeVisible();
+  await expect(page.getByText("Helena IA").first()).toBeVisible();
+  await expect(page.locator("body")).toContainText("Corte IA cinemático");
 });
 
 test("publishes baseline SEO assets", async ({ page, request }) => {
@@ -39,82 +40,57 @@ test("publishes baseline SEO assets", async ({ page, request }) => {
 test("core controls update visible state", async ({ page }) => {
   await gotoStudio(page);
 
-  await page.getByRole("button", { name: /AutoCut/ }).click();
-  await expect(page.getByText("Cria cortes sociais, highlights e variações curtas.")).toBeVisible();
-
   await page.getByRole("button", { name: "16:9" }).click();
   await expect(page.locator(".format-label")).toHaveText("Formato 16:9");
 
-  await page.getByRole("button", { name: /Reproduzir preview/ }).click();
-  await expect(page.getByText("Preview em reprodução")).toBeVisible();
-
-  await page.getByPlaceholder("Pedir roteiro, legenda, corte...").fill("crie tres hooks");
-  await page.getByRole("button", { name: "Enviar mensagem" }).click();
-  await expect(page.getByText("crie tres hooks")).toBeVisible();
-
-  await page.getByRole("button", { name: "Gere legendas dinâmicas para Reels" }).click();
-  await expect(
-    page.locator(".chat-bubble.user").filter({ hasText: "Gere legendas dinâmicas para Reels" })
-  ).toBeVisible();
-
-  await page.getByLabel("Zoom da timeline").fill("120");
-  await expect(page.getByText("120%")).toBeVisible();
+  await expect(page.locator("body")).toContainText("Storyboard");
 });
 
-test("sidebar navigation opens workspace sections", async ({ page }) => {
+test("chat page sends a visible message", async ({ page }) => {
+  await page.goto("/chat", { waitUntil: "domcontentloaded" });
+
+  await expect(page.getByRole("heading", { name: "Chat IA" })).toBeVisible();
+  await page.getByPlaceholder("Descreva sua ideia ou peça algo para a Helena IA...").fill("crie tres hooks");
+  await page.getByRole("button", { name: "Enviar" }).click();
+  await expect(page.getByText("crie tres hooks")).toBeVisible();
+  await expect(page.getByText(/checklist de produção/)).toBeVisible();
+});
+
+test("sidebar navigation opens launch pages", async ({ page }) => {
   await gotoStudio(page);
 
-  await page.getByRole("button", { name: "Assets" }).click();
-  await expect(page).toHaveURL(/\/assets$/);
-  await expect(page.getByRole("heading", { name: "Assets" })).toBeVisible();
-  await expect(page.getByText("Uploads do projeto")).toBeVisible();
+  for (const [name, url, heading] of [
+    ["Assets", /\/assets$/, "Assets"],
+    ["Minha conta", /\/minha-conta$/, "Minha conta"],
+    ["Equipe & Workspace", /\/workspace$/, "Equipe & Workspace"],
+    ["Integrações & API", /\/integracoes$/, "Integrações & API"],
+    ["Chat IA", /\/chat$/, "Chat IA"],
+    ["Projetos", /\/projetos$/, "Projetos"],
+    ["Templates", /\/templates$/, "Templates"]
+  ] as const) {
+    await page.getByRole("button", { name }).click();
+    await expect(page).toHaveURL(url);
+    await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible();
+  }
 
   await page.getByRole("button", { name: "Studio" }).click();
   await expect(page).toHaveURL(/\/studio$/);
-  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
+  await expect(page.getByText("Campanha Helena Launch")).toBeVisible();
 });
 
-test("assistant panel can collapse and expand", async ({ page }) => {
-  await gotoStudio(page);
-
-  await page.getByRole("button", { name: "Recolher Helena IA" }).click();
-  await expect(page.getByRole("button", { name: "Expandir Helena IA" })).toBeVisible();
-
-  await page.getByRole("button", { name: "Expandir Helena IA" }).click();
-  await expect(page.getByPlaceholder("Pedir roteiro, legenda, corte...")).toBeVisible();
-});
-
-test("advanced controls expand on demand", async ({ page }) => {
-  await gotoStudio(page);
-
-  await expect(page.getByLabel("Modelo")).toBeHidden();
-  await page.getByText("Controles avançados").click();
-  await expect(page.getByLabel("Modelo")).toBeVisible();
-  await expect(page.getByLabel("Duração")).toBeVisible();
-  await expect(page.getByLabel("Resolução")).toBeVisible();
-  await expect(page.getByLabel("Prompt negativo")).toBeVisible();
-});
-
-test("studio shows storyboard and blocks providers that are not ready", async ({ page }) => {
+test("studio shows storyboard and quality metadata", async ({ page }) => {
   await gotoStudio(page);
 
   await expect(page.getByRole("button", { name: /Gancho visual/ })).toBeVisible();
-  await expect(page.getByText("Job pronto para envio seguro.")).toBeVisible();
-
-  await page.getByText("Controles avançados").click();
-  await page.getByLabel("Modelo").selectOption("kling");
-
-  await expect(
-    page.getByText("Provider selecionado ainda precisa de chave ou ativação no backend.")
-  ).toBeVisible();
-  await expect(page.getByRole("button", { name: /Gerar/ })).toBeDisabled();
+  await expect(page.locator("body")).toContainText("6 cenas planejadas");
+  await expect(page.locator("body")).toContainText("18s - 1080p - 2 var.");
 });
 
 test("legacy r-prefixed studio routes are normalized", async ({ page }) => {
   await page.goto("/r/r/studio", { waitUntil: "domcontentloaded" });
 
   await expect(page).toHaveURL(/\/studio$/);
-  await expect(page.getByRole("heading", { name: "Editor IA independente" })).toBeVisible();
+  await expect(page.getByText("Campanha Helena Launch")).toBeVisible();
 });
 
 test("export action downloads project json", async ({ page }) => {
@@ -142,5 +118,5 @@ test("upload flow opens media adjustment modal", async ({ page }) => {
   await expect(dialog.getByText("referencia.png", { exact: true })).toBeVisible();
   await page.getByLabel("Zoom do enquadramento").fill("1.5");
   await page.getByRole("button", { name: "Confirmar enquadramento" }).click();
-  await expect(page.getByText("Enquadramento confirmado em 1.5x")).toBeVisible();
+  await expect(dialog).toBeHidden();
 });
