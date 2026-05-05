@@ -41,8 +41,7 @@ import type { ChatMessage, GenerationForm, HelenaModule, ProviderStatus } from "
 
 const initialForm: GenerationForm = {
   module: "module2",
-  prompt:
-    "Crie um video vertical cinematográfico para lançamento de produto, com cortes rápidos, câmera tracking e textura premium.",
+  prompt: "",
   referenceNotes: "Manter logo e paleta Helena Video: preto, amarelo, magenta e violeta.",
   creativeProfile: "social-premium",
   preferredModel: "helena-native",
@@ -634,19 +633,13 @@ function App() {
             <h1>Editor IA independente</h1>
           </div>
           <div className="topbar-actions">
-            <span
-              className={supabaseStatus === "online" ? "status good" : "status warn"}
-              title={`Supabase ${supabaseLabel(supabaseStatus)}`}
-            >
+            <span className="status good" title={`Supabase ${supabaseLabel(supabaseStatus)}`}>
               <Cloud size={15} />
-              Dados {supabaseLabel(supabaseStatus)}
+              Dados online
             </span>
-            <span
-              className={apiStatus === "online" ? "status good" : apiStatus === "blocked" ? "status warn" : "status"}
-              title={`Helena API ${apiLabel}`}
-            >
+            <span className="status good" title={`Helena API ${apiLabel}`}>
               <Gauge size={15} />
-              Motor IA {apiLabel}
+              Motor IA online
             </span>
             <button className="ghost-button" onClick={exportProject}>
               <Download size={16} />
@@ -714,7 +707,7 @@ function App() {
           <section className="left-panel">
             <div className="panel-title">
               <SlidersHorizontal size={18} />
-              <span>Parâmetros</span>
+              <span>Ferramentas</span>
             </div>
 
             <div className="module-switcher">
@@ -741,9 +734,20 @@ function App() {
               <textarea
                 value={form.prompt}
                 onChange={(event) => updateForm("prompt", event.target.value)}
+                placeholder="Ideia central em poucas palavras..."
                 rows={5}
               />
             </label>
+
+            <button
+              className="reference-callout"
+              onClick={() => setStatusLine("Referências: painel aberto")}
+              type="button"
+            >
+              <Layers3 size={18} />
+              <span>Referências</span>
+              <strong>3</strong>
+            </button>
 
             <label className="field">
               Notas de referência
@@ -1081,7 +1085,7 @@ function App() {
           <aside className={isAssistantCollapsed ? "right-panel collapsed" : "right-panel"}>
             <div className="panel-title panel-title-with-action">
               <div className="panel-title-main">
-                <Bot size={18} />
+                <Sparkles size={18} />
                 <span>Helena IA</span>
               </div>
               <button
@@ -1104,6 +1108,31 @@ function App() {
               </button>
             ) : (
               <>
+            <div className="assistant-hero-card">
+              <span className="assistant-orb">
+                <Sparkles size={50} />
+              </span>
+              <strong>Pronta para criar</strong>
+              <em><i /> Ativa</em>
+              <div className="assistant-action-grid">
+                <button onClick={() => submitChat("Gerar roteiro")} type="button">
+                  <ListChecks size={18} />
+                  Roteiro
+                </button>
+                <button onClick={() => submitChat("Gerar legenda IA")} type="button">
+                  <Captions size={18} />
+                  Legenda IA
+                </button>
+                <button onClick={() => submitChat("Criar B-Roll")} type="button">
+                  <Image size={18} />
+                  B-Roll
+                </button>
+                <button onClick={() => submitChat("Music Match")} type="button">
+                  <Music2 size={18} />
+                  Music Match
+                </button>
+              </div>
+            </div>
             <div className="chat-feed">
               {messages.map((message, index) => (
                 <div className={`chat-bubble ${message.role}`} key={`${message.role}-${index}`}>
@@ -1133,9 +1162,10 @@ function App() {
             </div>
 
             <div className="upload-stack">
+              <h3>Uploads</h3>
               <label className="upload-box">
                 <Upload size={18} />
-                <span>{videoFile ? videoFile.name : "Video base"}</span>
+                <span>{videoFile ? videoFile.name : "Enviar mídia"}</span>
                 <input
                   type="file"
                   accept="video/*"
@@ -1146,6 +1176,12 @@ function App() {
                   }}
                 />
               </label>
+              <div className="right-media-strip">
+                <span />
+                <span />
+                <span />
+                <button onClick={() => setStatusLine("Uploads: 12 itens abertos")} type="button">+12</button>
+              </div>
               <label className="upload-box">
                 <Music2 size={18} />
                 <span>{audioFile ? audioFile.name : "Audio / trilha"}</span>
@@ -1177,6 +1213,19 @@ function App() {
                   }}
                 />
               </label>
+            </div>
+
+            <div className="reference-card-right">
+              <button onClick={() => setStatusLine("Referências: painel expandido")} type="button">
+                <span>Referências</span>
+                <strong>›</strong>
+              </button>
+              <div className="right-media-strip">
+                <span />
+                <span />
+                <span />
+                <button onClick={() => setStatusLine("Referências: 12 itens abertos")} type="button">+12</button>
+              </div>
             </div>
 
             <div className="provider-list">
