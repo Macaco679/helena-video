@@ -19,6 +19,10 @@ const requestUrl = (path: string) =>
     : `${appConfig.helenaApiUrl}${path}`;
 
 export async function fetchHealth() {
+  if (!appConfig.helenaProxyUrl && !appConfig.helenaApiUrl) {
+    throw new Error("Helena API endpoint nao configurado.");
+  }
+
   const response = await fetchWithTimeout(requestUrl("/health"));
 
   if (!response.ok) {
@@ -46,6 +50,10 @@ export async function createHelenaJob(
     references?: File[];
   }
 ): Promise<HelenaJobResponse> {
+  if (!appConfig.helenaProxyUrl && !appConfig.helenaApiUrl && !appConfig.helenaN8nJobWebhookUrl) {
+    throw new Error("Helena API endpoint nao configurado.");
+  }
+
   const body = new FormData();
   body.set("prompt", form.prompt);
   body.set("job_type", form.module);
