@@ -39,7 +39,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { hasSupabaseConfig } from "./lib/config";
 import { createHelenaJob, fetchHealth } from "./lib/helenaApi";
-import { ExactPrintOverlay } from "./ExactPrintOverlay";
 import { providerMatrix } from "./lib/providers";
 import { checkSupabaseConnection } from "./lib/supabase";
 import type { ChatMessage, GenerationForm, HelenaModule, ProviderStatus } from "./lib/types";
@@ -1378,7 +1377,6 @@ function App() {
           </section>
         </div>
       ) : null}
-      <ExactPrintOverlay />
     </main>
   );
 }
@@ -2501,7 +2499,13 @@ function ProjectsPage({ setStatusLine }: { setStatusLine: (value: string) => voi
       </section>
       <section className="hv-card projects-board">
         <div className="card-title-row">
-          <div className="tabs-row"><button>Todos</button><button>Recentes</button><button>Equipe</button><button>Favoritos</button></div>
+          <div className="tabs-row">
+            {["Todos", "Recentes", "Equipe", "Favoritos"].map((tab) => (
+              <button key={tab} type="button" onClick={() => setStatusLine(`Projetos: filtro ${tab}`)}>
+                {tab}
+              </button>
+            ))}
+          </div>
           <label className="search-row"><Search size={17} /><input placeholder="Buscar projetos..." /></label>
         </div>
         <div className="empty-table project-empty">
@@ -2525,7 +2529,13 @@ function TemplatesPage({ setStatusLine }: { setStatusLine: (value: string) => vo
   const templates = ["Lançamento de Produto", "Promoção Social", "Stories Dinâmico", "Institucional Clean", "Tutorial Passo a Passo", "Apresentação de Produto", "Depoimento Cliente", "Oferta Relâmpago"];
   return (
     <div className="templates-layout launch-page">
-      <div className="tabs-row template-tabs">{["Todos", "Anúncios", "Social", "Produto", "Treinamento", "Institucional"].map((tab) => <button key={tab}>{tab}</button>)}</div>
+      <div className="tabs-row template-tabs">
+        {["Todos", "Anúncios", "Social", "Produto", "Treinamento", "Institucional"].map((tab) => (
+          <button key={tab} type="button" onClick={() => setStatusLine(`Templates: categoria ${tab}`)}>
+            {tab}
+          </button>
+        ))}
+      </div>
       <section className="hv-card template-featured">
         <div>
           <span>Destaque</span>
