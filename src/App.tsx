@@ -2053,7 +2053,7 @@ function SettingsPage({
     ["Editor", "Preset padrão", "Padrão Helena", SlidersHorizontal],
     ["APIs", "Conexões externas", supabaseLabel(supabaseStatus), KeyRound],
     ["Integrações", "Canais externos", "Conectar", Workflow],
-    ["Preferências", "Ambiente do usuário", "Aguardando dados", ShieldCheck]
+    ["Preferências", "Ambiente do usuário", "Configurar", ShieldCheck]
   ] as const;
 
   return (
@@ -2073,7 +2073,8 @@ function SettingsPage({
         <section className="hv-card health-card">
           <ShieldCheck size={30} />
           <h3>Saúde do sistema</h3>
-          <p>Status exibido conforme retorno real das integrações.</p>
+          {/* Display the system health status based on integration responses. */}
+          <p>Status exibido conforme retorno das integrações.</p>
           {["Servidores IA", "Fila de render", "Armazenamento", "APIs externas"].map((item) => (
             <div key={item}>
               <span>{item}</span>
@@ -2084,7 +2085,7 @@ function SettingsPage({
         <section className="hv-card usage-card">
           <h3>Uso do workspace</h3>
           <div className="usage-ring">--</div>
-          <p>Dados reais pendentes</p>
+          <p>Dados pendentes</p>
         </section>
         <button className="helena-tip" onClick={() => setStatusLine("Ajustes: dica Helena aberta")} type="button">
           <Sparkles size={24} />
@@ -2097,12 +2098,13 @@ function SettingsPage({
 }
 
 function BillingPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
-  const [selectedMethod, setSelectedMethod] = useState("Nenhum método real conectado");
+  // The currently selected payment method; starts as none when no method is connected.
+  const [selectedMethod, setSelectedMethod] = useState("Nenhum método conectado");
   const stats = [
-    ["Gasto atual", "--", "Aguardando fatura real", CreditCard],
+    ["Gasto atual", "--", "Sem fatura conectada", CreditCard],
     ["Próximo vencimento", "--", "Sem cobrança ativa", ListChecks],
-    ["Créditos de render", "--", "Dados reais pendentes", Gauge],
-    ["Método principal", "--", "Nenhum método real conectado", CreditCard]
+    ["Créditos de render", "--", "Dados pendentes", Gauge],
+    ["Método principal", "--", "Nenhum método conectado", CreditCard]
   ] as const;
 
   return (
@@ -2124,13 +2126,13 @@ function BillingPage({ setStatusLine }: { setStatusLine: (value: string) => void
           <h3>Faturas</h3>
           <div className="empty-table">
             <CreditCard size={30} />
-            <strong>Nenhuma fatura real sincronizada</strong>
+            <strong>Nenhuma fatura sincronizada</strong>
             <span>Histórico de faturas aparece aqui após conectar a conta de cobrança.</span>
           </div>
         </section>
         <section className="hv-card saved-methods">
           <h3>Métodos salvos</h3>
-          {["Nenhum método real conectado"].map((method) => (
+          {["Nenhum método conectado"].map((method) => (
             <button
               key={method}
               type="button"
@@ -2148,7 +2150,7 @@ function BillingPage({ setStatusLine }: { setStatusLine: (value: string) => void
       <aside className="side-stack">
         <section className="hv-card">
           <h3>Endereço de cobrança</h3>
-          <p>Nenhum endereço real cadastrado.</p>
+          <p>Nenhum endereço cadastrado.</p>
         </section>
         <section className="hv-card">
           <h3>Ações rápidas</h3>
@@ -2170,13 +2172,13 @@ function WalletPage({ setStatusLine }: { setStatusLine: (value: string) => void 
       <section className="wallet-balance hv-card">
         <span>Saldo disponível</span>
         <strong>--</strong>
-        <p>Saldo real pendente</p>
+        <p>Saldo pendente</p>
         <Wallet size={48} />
       </section>
       <section className="hv-card wallet-credits">
         <span>Créditos</span>
         <strong>-- <Sparkles size={34} /></strong>
-        <p>Créditos reais pendentes</p>
+        <p>Créditos pendentes</p>
       </section>
       <section className="hv-card wallet-actions">
         <h3>Ações rápidas</h3>
@@ -2187,7 +2189,7 @@ function WalletPage({ setStatusLine }: { setStatusLine: (value: string) => void 
         <h3>Transações recentes</h3>
         <div className="empty-table">
           <Wallet size={30} />
-          <strong>Nenhuma transação real sincronizada</strong>
+          <strong>Nenhuma transação sincronizada</strong>
           <span>Compras, renders e créditos aparecem aqui após conectar a conta.</span>
         </div>
       </section>
@@ -2195,7 +2197,7 @@ function WalletPage({ setStatusLine }: { setStatusLine: (value: string) => void 
         <h3>Histórico de saques</h3>
         <div className="empty-table">
           <Upload size={30} />
-          <strong>Nenhum saque real solicitado</strong>
+          <strong>Nenhum saque solicitado</strong>
           <span>Solicitações de saque aparecem aqui quando houver saldo conectado.</span>
         </div>
       </section>
@@ -2262,7 +2264,7 @@ function PlansPage({ setStatusLine }: { setStatusLine: (value: string) => void }
         ))}
       </div>
       <section className="hv-card plan-benefits">
-        {["Segurança e privacidade", "Exportação ilimitada", "IA sempre evoluindo", "Suporte real"].map((benefit) => (
+        {["Segurança e privacidade", "Exportação ilimitada", "IA sempre evoluindo", "Suporte dedicado"].map((benefit) => (
           <div key={benefit}>
             <ShieldCheck size={26} />
             <strong>{benefit}</strong>
@@ -2281,7 +2283,7 @@ function AccountPage({ setStatusLine }: { setStatusLine: (value: string) => void
         <span className="avatar-orb">HS</span>
         <div>
           <h3>Conta Helena Studio</h3>
-          <p>Complete os dados reais do usuário antes do lançamento.</p>
+          <p>Complete os dados do usuário antes do lançamento.</p>
           <span className="status warn">Dados pendentes</span>
         </div>
         <button className="primary-button" onClick={() => setStatusLine("Minha conta: alterações salvas localmente")} type="button">
@@ -2293,12 +2295,12 @@ function AccountPage({ setStatusLine }: { setStatusLine: (value: string) => void
         {["Nome completo", "E-mail", "Telefone", "Cargo", "Empresa"].map((field) => (
           <label className="launch-field" key={field}>
             {field}
-            <input placeholder="Aguardando dado real" />
+            <input placeholder="Aguardando dado" />
           </label>
         ))}
         <label className="launch-field wide">
           Bio
-          <textarea placeholder="Escreva uma bio real para exibição no perfil." rows={4} />
+          <textarea placeholder="Escreva uma bio para exibição no perfil." rows={4} />
         </label>
       </section>
       <section className="hv-card security-card">
@@ -2314,12 +2316,12 @@ function AccountPage({ setStatusLine }: { setStatusLine: (value: string) => void
       <aside className="side-stack">
         <section className="hv-card">
           <h3>Status da conta</h3>
-          <p>Plano, cobrança e uso serão exibidos quando houver dados reais conectados.</p>
+          <p>Plano, cobrança e uso serão exibidos quando houver dados conectados.</p>
           <button className="ghost-button" onClick={() => setStatusLine("Minha conta: gerenciar plano")} type="button">Gerenciar plano</button>
         </section>
         <section className="hv-card">
           <h3>Atividade recente</h3>
-          <p>Nenhuma atividade real sincronizada ainda.</p>
+          <p>Nenhuma atividade sincronizada ainda.</p>
         </section>
       </aside>
     </div>
@@ -2343,8 +2345,8 @@ function TeamPage({ setStatusLine }: { setStatusLine: (value: string) => void })
         </label>
         <div className="empty-table">
           <Users size={30} />
-          <strong>Nenhum membro real carregado</strong>
-          <span>Conecte a conta para listar equipe, permissões e atividades reais.</span>
+          <strong>Nenhum membro carregado</strong>
+          <span>Conecte a conta para listar equipe, permissões e atividades.</span>
         </div>
       </section>
       <section className="hv-card">
@@ -2370,7 +2372,7 @@ function TeamPage({ setStatusLine }: { setStatusLine: (value: string) => void })
       <aside className="side-stack">
         <section className="hv-card">
           <h3>Resumo do workspace</h3>
-          <p>Uso, convites e atividade da equipe dependem de dados reais.</p>
+          <p>Uso, convites e atividade da equipe dependem de dados conectados.</p>
         </section>
         <section className="hv-card">
           <h3>Segurança do workspace</h3>
@@ -2411,14 +2413,20 @@ function IntegrationsPage({ setStatusLine }: { setStatusLine: (value: string) =>
         </div>
         <div className="api-key-row">
           <span>Chave da API</span>
-          <strong>Gerada somente no painel real</strong>
+          <strong>Gerada somente no painel</strong>
         </div>
-        <button className="primary-button" onClick={() => setStatusLine("Integrações: gerar chave real")} type="button">Gerar nova chave</button>
+        <button
+          className="primary-button"
+          onClick={() => setStatusLine("Integrações: gerar chave")}
+          type="button"
+        >
+          Gerar nova chave
+        </button>
       </section>
       <aside className="side-stack">
         <section className="hv-card">
           <h3>Uso da API</h3>
-          <p>Sem métricas reais sincronizadas.</p>
+          <p>Sem métricas sincronizadas.</p>
         </section>
         <section className="hv-card">
           <h3>Segurança e compliance</h3>
@@ -2485,6 +2493,8 @@ function ChatPage({ setStatusLine }: { setStatusLine: (value: string) => void })
 }
 
 function ProjectsPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
+  // Track which filter tab is currently active to provide visual feedback.
+  const [activeTab, setActiveTab] = useState<string>("Todos");
   return (
     <div className="projects-layout launch-page">
       <section className="stat-grid project-stats">
@@ -2493,7 +2503,7 @@ function ProjectsPage({ setStatusLine }: { setStatusLine: (value: string) => voi
             <Layers3 size={28} />
             <span>{item}</span>
             <strong>--</strong>
-            <small>Aguardando dados reais</small>
+            <small>Aguardando dados</small>
           </article>
         ))}
       </section>
@@ -2501,7 +2511,15 @@ function ProjectsPage({ setStatusLine }: { setStatusLine: (value: string) => voi
         <div className="card-title-row">
           <div className="tabs-row">
             {["Todos", "Recentes", "Equipe", "Favoritos"].map((tab) => (
-              <button key={tab} type="button" onClick={() => setStatusLine(`Projetos: filtro ${tab}`)}>
+              <button
+                key={tab}
+                type="button"
+                className={activeTab === tab ? "active" : ""}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setStatusLine(`Projetos: filtro ${tab}`);
+                }}
+              >
                 {tab}
               </button>
             ))}
@@ -2510,28 +2528,44 @@ function ProjectsPage({ setStatusLine }: { setStatusLine: (value: string) => voi
         </div>
         <div className="empty-table project-empty">
           <Layers3 size={34} />
-          <strong>Nenhum projeto real sincronizado</strong>
-          <span>Quando o usuário criar ou importar projetos, eles aparecem aqui com status real.</span>
-          <button className="primary-button" onClick={() => setStatusLine("Projetos: novo projeto")} type="button">Novo projeto</button>
+          <strong>Nenhum projeto sincronizado</strong>
+          <span>Quando o usuário criar ou importar projetos, eles aparecerão aqui com status sincronizado.</span>
+          <button
+            className="primary-button"
+            onClick={() => setStatusLine("Projetos: novo projeto")}
+            type="button"
+          >
+            Novo projeto
+          </button>
         </div>
       </section>
-      <aside className="side-stack">
-        <section className="hv-card">
-          <h3>Atividade recente</h3>
-          <p>Atividades reais aparecem aqui quando houver workspace conectado.</p>
-        </section>
-      </aside>
+        <aside className="side-stack">
+          <section className="hv-card">
+            <h3>Atividade recente</h3>
+            <p>Atividades aparecem aqui quando houver workspace conectado.</p>
+          </section>
+        </aside>
     </div>
   );
 }
 
 function TemplatesPage({ setStatusLine }: { setStatusLine: (value: string) => void }) {
   const templates = ["Lançamento de Produto", "Promoção Social", "Stories Dinâmico", "Institucional Clean", "Tutorial Passo a Passo", "Apresentação de Produto", "Depoimento Cliente", "Oferta Relâmpago"];
+  // Track the currently selected template category for visual feedback
+  const [activeCategory, setActiveCategory] = useState<string>("Todos");
   return (
     <div className="templates-layout launch-page">
       <div className="tabs-row template-tabs">
         {["Todos", "Anúncios", "Social", "Produto", "Treinamento", "Institucional"].map((tab) => (
-          <button key={tab} type="button" onClick={() => setStatusLine(`Templates: categoria ${tab}`)}>
+          <button
+            key={tab}
+            type="button"
+            className={activeCategory === tab ? "active" : ""}
+            onClick={() => {
+              setActiveCategory(tab);
+              setStatusLine(`Templates: categoria ${tab}`);
+            }}
+          >
             {tab}
           </button>
         ))}

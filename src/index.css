@@ -3226,7 +3226,7 @@ select:focus-visible {
   letter-spacing: -0.02em;
 }
 
-/* Helena studio reference pass: align Studio with supplied 1672x941 mockup. */
+/* Helena studio reference pass: align Studio with supplied 1672x941 design. */
 @media (min-width: 1180px) {
   .app-shell {
     grid-template-columns: 250px minmax(0, 1fr);
@@ -3892,6 +3892,13 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.035);
   color: rgba(255, 255, 255, 0.82);
   padding: 10px 14px;
+}
+
+/* Highlight the active tab in tab rows. This provides visual feedback when a filter is selected. */
+.tabs-row button.active {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
 
 .chat-layout {
