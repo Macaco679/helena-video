@@ -18,12 +18,43 @@ const requestUrl = (path: string) =>
     ? `${appConfig.helenaProxyUrl}${proxyPath(path)}`
     : `${appConfig.helenaApiUrl}${path}`;
 
+function isPublicBrowserOrigin() {
+  return !["localhost", "127.0.0.1"].includes(window.location.hostname);
+}
+
+function isLocalNetworkUrl(url: string) {
+  if (!url) return false;
+
+  try {
+    const { hostname } = new URL(url);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.endsWith(".ts.net") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("192.168.") ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function assertBrowserReachableEndpoint(url: string, label: string) {
+  if (isPublicBrowserOrigin() && isLocalNetworkUrl(url)) {
+    throw new Error(`${label} local/Tailscale nao pode ser chamado diretamente pelo navegador publico.`);
+  }
+}
+
 export async function fetchHealth() {
   if (!appConfig.helenaProxyUrl && !appConfig.helenaApiUrl) {
     throw new Error("Helena API endpoint nao configurado.");
   }
 
-  const response = await fetchWithTimeout(requestUrl("/health"));
+  const healthUrl = requestUrl("/health");
+  assertBrowserReachableEndpoint(healthUrl, "Helena API");
+
+  const response = await fetchWithTimeout(healthUrl);
 
   if (!response.ok) {
     throw new Error(`Health failed: ${response.status}`);
@@ -95,6 +126,7 @@ export async function createHelenaJob(
   const jobUrl = appConfig.helenaN8nJobWebhookUrl && !hasLocalFiles
     ? appConfig.helenaN8nJobWebhookUrl
     : requestUrl(endpointForModule(form.module));
+  assertBrowserReachableEndpoint(jobUrl, "Helena job");
 
   const response = await fetchWithTimeout(jobUrl, {
     method: "POST",
