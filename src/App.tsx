@@ -39,6 +39,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { hasSupabaseConfig } from "./lib/config";
 import { createHelenaJob, fetchHealth } from "./lib/helenaApi";
+import { ExactPrintOverlay } from "./ExactPrintOverlay";
 import { providerMatrix } from "./lib/providers";
 import { checkSupabaseConnection } from "./lib/supabase";
 import type { ChatMessage, GenerationForm, HelenaModule, ProviderStatus } from "./lib/types";
@@ -210,6 +211,8 @@ const routeByPath = new Map([
   ["/billing", navItems.find((item) => item.label === "Pagamentos")!],
   ["/wallet", navItems.find((item) => item.label === "Carteira")!],
   ["/pricing", navItems.find((item) => item.label === "Planos")!],
+  ["/ajustes/conta", { ...navItems.find((item) => item.label === "Ajustes")!, path: "/ajustes/conta" }],
+  ["/ajustes/preferencias", { ...navItems.find((item) => item.label === "Ajustes")!, path: "/ajustes/preferencias" }],
   ["/account", navItems.find((item) => item.label === "Minha conta")!],
   ["/team", navItems.find((item) => item.label === "Equipe & Workspace")!],
   ["/api", navItems.find((item) => item.label === "Integrações & API")!],
@@ -1375,6 +1378,7 @@ function App() {
           </section>
         </div>
       ) : null}
+      <ExactPrintOverlay />
     </main>
   );
 }

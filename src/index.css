@@ -38,6 +38,30 @@ body {
     linear-gradient(135deg, #080a0f, var(--hv-bg-light) 46%, #07080c);
 }
 
+.exact-print-overlay {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .exact-print-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    display: block;
+    overflow: hidden;
+    background: #07080d;
+    pointer-events: none;
+  }
+
+  .exact-print-overlay img {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    object-fit: fill;
+    user-select: none;
+  }
+}
+
 button,
 input,
 textarea,
