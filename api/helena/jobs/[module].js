@@ -26,20 +26,23 @@ export default async function handler(request, response) {
     return;
   }
 
+  const n8nWebhook = process.env.HELENA_VIDEO_N8N_JOB_WEBHOOK_URL;
   const apiBase = process.env.HELENA_VIDEO_API_URL;
   const apiKey = process.env.HELENA_VIDEO_API_KEY;
 
-  if (!apiBase) {
-    sendJson(response, 500, { error: "HELENA_VIDEO_API_URL is not configured" }, corsHeaders);
+  if (!apiBase && !n8nWebhook) {
+    sendJson(response, 500, { error: "HELENA_VIDEO_API_URL or HELENA_VIDEO_N8N_JOB_WEBHOOK_URL is not configured" }, corsHeaders);
     return;
   }
 
   const headers = forwardHeaders(request.headers);
   if (apiKey) headers.set("X-API-Key", apiKey);
+  headers.set("X-Helena-Module", module);
 
   let upstream;
   try {
-    upstream = await fetch(new URL(`/api/v1/jobs/${module}`, apiBase), {
+    const target = n8nWebhook ? n8nWebhook : new URL(`/api/v1/jobs/${module}`, apiBase);
+    upstream = await fetch(target, {
       method: "POST",
       headers,
       body: await readBody(request)

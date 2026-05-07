@@ -15,10 +15,11 @@ function getPool() {
   }
 
   if (!pool) {
+    const needsSsl = !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL);
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       max: 4,
-      ssl: process.env.DATABASE_URL.includes("sslmode=require") ? { rejectUnauthorized: false } : undefined
+      ssl: needsSsl ? { rejectUnauthorized: false } : undefined
     });
   }
 
@@ -151,6 +152,16 @@ async function handleAuth(request, response, route, body, user) {
     return;
   }
 
+  if (request.method === "GET" && route[1] === "google" && route[2] === "callback") {
+    await handleGoogleOAuthCallback(request, response);
+    return;
+  }
+
+  if (request.method === "GET" && route[1] === "google") {
+    await handleGoogleOAuthStart(request, response);
+    return;
+  }
+
   send(response, 405, { error: "Method not allowed" });
 }
 
@@ -185,6 +196,86 @@ async function handleAccount(request, response, body, user) {
   }
 
   send(response, 405, { error: "Method not allowed" });
+}
+
+async function handleGoogleOAuthStart(request, response) {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    send(response, 503, { error: "Google OAuth nao configurado." });
+    return;
+  }
+
+  const state = crypto.randomBytes(24).toString("base64url");
+  const redirectUri = `${originFromRequest(request)}/api/app/auth/google/callback`;
+  const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("client_id", clientId);
+  authUrl.searchParams.set("redirect_uri", redirectUri);
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("scope", "openid email profile");
+  authUrl.searchParams.set("state", state);
+  authUrl.searchParams.set("prompt", "select_account");
+
+  response.statusCode = 302;
+  response.setHeader("location", authUrl.toString());
+  response.setHeader("set-cookie", serializeStateCookie(state));
+  response.end();
+}
+
+async function handleGoogleOAuthCallback(request, response) {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    send(response, 503, { error: "Google OAuth nao configurado." });
+    return;
+  }
+
+  const url = new URL(request.url || "/", originFromRequest(request));
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const storedState = readCookie(request, "helena_oauth_state");
+  if (!code || !state || !storedState || state !== storedState) {
+    redirect(response, "/auth?oauth=invalid", clearStateCookie());
+    return;
+  }
+
+  const redirectUri = `${originFromRequest(request)}/api/app/auth/google/callback`;
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: redirectUri
+    })
+  });
+
+  const tokenPayload = await tokenResponse.json().catch(() => ({}));
+  if (!tokenResponse.ok || !tokenPayload.access_token) {
+    redirect(response, "/auth?oauth=token_failed", clearStateCookie());
+    return;
+  }
+
+  const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+    headers: { authorization: `Bearer ${tokenPayload.access_token}` }
+  });
+  const profile = await profileResponse.json().catch(() => ({}));
+  const email = normalizeEmail(profile.email);
+  if (!profileResponse.ok || !email) {
+    redirect(response, "/auth?oauth=profile_failed", clearStateCookie());
+    return;
+  }
+
+  const user = await upsertOAuthUser({
+    email,
+    name: optionalText(profile.name) || email.split("@")[0]
+  });
+  await ensureWorkspace(user.id);
+  await createSession(response, user.id);
+  response.setHeader("set-cookie", [serializeCookieFromLatest(response), clearStateCookie()].filter(Boolean));
+  redirect(response, "/studio");
 }
 
 async function handleProjects(request, response, route, body, user) {
@@ -288,7 +379,7 @@ async function handleChat(request, response, body, user) {
     [user.id]
   );
   const sessionId = sessionResult.rows[0].id;
-  const assistant = buildAssistantReply(message);
+  const assistant = await buildAssistantReply(message, user).catch(() => buildLocalAssistantReply(message));
   await query(
     `insert into public.helena_chat_messages (session_id, app_user_id, role, content)
      values ($1, $2, 'user', $3), ($1, $2, 'assistant', $4)`,
@@ -575,6 +666,20 @@ async function ensureWorkspace(userId) {
   );
 }
 
+async function upsertOAuthUser({ email, name }) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const passwordHash = hashPassword(crypto.randomBytes(32).toString("base64url"), salt);
+  const result = await query(
+    `insert into public.helena_users (email, name, password_hash, password_salt)
+     values ($1, $2, $3, $4)
+     on conflict (email)
+     do update set name = coalesce(nullif(excluded.name, ''), public.helena_users.name), updated_at = now()
+     returning id, email, name, plan, role, phone, company, job_title, bio`,
+    [email, name, passwordHash, salt]
+  );
+  return result.rows[0];
+}
+
 async function ensureDefaultProject(userId) {
   const existing = await query(
     `select id from public.helena_projects
@@ -628,6 +733,33 @@ function clearCookie() {
   return `${sessionCookie}=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0`;
 }
 
+function serializeStateCookie(state) {
+  return `helena_oauth_state=${encodeURIComponent(state)}; Path=/api/app/auth/google; HttpOnly; SameSite=Lax; Secure; Max-Age=600`;
+}
+
+function clearStateCookie() {
+  return "helena_oauth_state=; Path=/api/app/auth/google; HttpOnly; SameSite=Lax; Secure; Max-Age=0";
+}
+
+function serializeCookieFromLatest(response) {
+  const value = response.getHeader?.("set-cookie");
+  if (Array.isArray(value)) return value[0];
+  return typeof value === "string" ? value : "";
+}
+
+function originFromRequest(request) {
+  const proto = request.headers["x-forwarded-proto"] || "https";
+  const host = request.headers["x-forwarded-host"] || request.headers.host || "localhost";
+  return `${Array.isArray(proto) ? proto[0] : proto}://${Array.isArray(host) ? host[0] : host}`;
+}
+
+function redirect(response, location, cookie) {
+  response.statusCode = 302;
+  if (cookie) response.setHeader("set-cookie", cookie);
+  response.setHeader("location", location);
+  response.end();
+}
+
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -676,7 +808,35 @@ function templateCatalog() {
   ];
 }
 
-function buildAssistantReply(message) {
+async function buildAssistantReply(message, user) {
+  const webhookUrl = process.env.HELENA_CHAT_WEBHOOK_URL || process.env.HELENA_VIDEO_COPILOT_WEBHOOK_URL;
+  if (webhookUrl) {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        message,
+        user: publicUser(user),
+        source: "helena-video-app",
+        requestedAt: new Date().toISOString()
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (response.ok) {
+      const reply =
+        payload.message ||
+        payload.reply ||
+        payload.answer ||
+        payload.output ||
+        payload.text;
+      if (typeof reply === "string" && reply.trim()) return reply.trim();
+    }
+  }
+
+  return buildLocalAssistantReply(message);
+}
+
+function buildLocalAssistantReply(message) {
   const lower = message.toLowerCase();
   if (lower.includes("legenda")) return "Estruturei a legenda em abertura forte, quebra por cena e CTA final. Salvei a direcao para o projeto atual.";
   if (lower.includes("roteiro")) return "Montei um roteiro em 6 cenas: gancho, contexto, demonstracao, prova, oferta e chamada final.";
