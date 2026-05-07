@@ -525,18 +525,18 @@ async function handleActions(request, response, body, user) {
 }
 
 function normalizeRoute(request) {
-  const path = request.query?.path;
-  const fromQuery = (Array.isArray(path) ? path : path ? [path] : [])
-    .join("/")
+  const url = new URL(request.url || "/", `https://${request.headers.host || "localhost"}`);
+  const fromUrl = url.pathname
+    .replace(/^\/api\/app\/?/, "")
     .split("/")
     .map((item) => item.trim())
     .filter(Boolean);
 
-  if (fromQuery.length) return fromQuery;
+  if (fromUrl.length) return fromUrl;
 
-  const url = new URL(request.url || "/", `https://${request.headers.host || "localhost"}`);
-  return url.pathname
-    .replace(/^\/api\/app\/?/, "")
+  const path = request.query?.path;
+  return (Array.isArray(path) ? path : path ? [path] : [])
+    .join("/")
     .split("/")
     .map((item) => item.trim())
     .filter(Boolean);
