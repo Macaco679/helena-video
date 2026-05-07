@@ -1078,10 +1078,16 @@ select:focus-visible {
 }
 
 .upload-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 21;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
   display: grid;
   gap: 16px;
-  width: min(720px, 100%);
-  max-height: calc(100vh - 44px);
+  width: min(720px, calc(100vw - 44px));
+  max-height: calc(100dvh - 44px);
   overflow: auto;
   border: 1px solid var(--hv-border);
   border-radius: 16px;
